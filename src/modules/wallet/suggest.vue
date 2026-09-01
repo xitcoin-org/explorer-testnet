@@ -12,6 +12,7 @@ import AdBanner from '@/components/ad/AdBanner.vue';
 
 const error = ref('');
 const conf = ref('');
+const pageRevision = 'xitcoin-testnet-wallet-helper-v2';
 const dashboard = useDashboard();
 const selected = ref({} as ChainConfig);
 const wallet = ref('keplr');
@@ -195,7 +196,7 @@ function suggest() {
 </script>
 
 <template>
-  <div class="rounded bg-base-100 p-4 text-center">
+  <div :data-revision="pageRevision" class="rounded bg-base-100 p-4 text-center">
     <div class="grid grid-cols-1 gap-4 text-left md:grid-cols-2">
       <label class="form-control w-full">
         <span class="label-text mb-2">Network</span>
