@@ -9,9 +9,6 @@ const walletStore = useWalletStore();
 const chainStore = useBlockchain();
 const baseStore = useBaseStore();
 const storageStore = useStorageStore();
-// walletStore.$subscribe((m, s) => {
-//   console.log(m, s);
-// });
 function walletStateChange(res: any) {
   walletStore.setConnectedWallet(res.detail?.value);
 }

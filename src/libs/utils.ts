@@ -134,11 +134,9 @@ export function rgbToHsl(color: string) {
   color = color.replace('rgb(', '');
   color = color.replace(')', '');
   const colorList = color.split(',') || [0, 0, 0];
-  // console.log(colorList, 'colorList')
   const r = parseInt(colorList?.[0]) / 255;
   const g = parseInt(colorList?.[1]) / 255;
   const b = parseInt(colorList?.[2]) / 255;
-  // console.log(r,g,b, '88')
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   let h = 0,

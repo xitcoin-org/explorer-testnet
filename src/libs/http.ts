@@ -20,7 +20,7 @@ const userAdapter = (source: any): User => {
 };
 try {
   const userData = await fetchData<User>("https://jsonplaceholder.typicode.com/users/1", userAdapter);
-  console.log(userData); // Output: { id: 1, name: "Leanne Graham", email: "Sincere@april.biz" }
+  // Use userData here.
 } catch (error) {
   console.error(error.message);
 }

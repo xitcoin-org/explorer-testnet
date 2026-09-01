@@ -80,7 +80,6 @@ const change24 = (entry: { consensus_pubkey: Key; tokens: string }) => {
   const txt = entry.consensus_pubkey.key;
   // const n: number = latest.value[txt];
   // const o: number = yesterday.value[txt];
-  // // console.log( txt, n, o)
   // return n > 0 && o > 0 ? n - o : 0;
 
   const latestValue = latest.value[txt];

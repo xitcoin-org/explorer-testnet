@@ -145,7 +145,6 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
   }
   // Gov
   async getParams(subspace: string, key: string) {
-    console.log(this.registry.params, subspace, key);
     return this.request(this.registry.params, { subspace, key });
   }
   async getGovParamsVoting() {

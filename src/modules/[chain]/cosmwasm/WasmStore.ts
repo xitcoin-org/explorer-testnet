@@ -17,7 +17,6 @@ export const useWasmStore = defineStore('module-wasm', {
     // },
     // requestVerification() {
     //   post("https://prod.neutron.compiler.welldonestudio.io/verification/neutron", {"contractAddress": address, "chainId": baseStore.latest?.block.header.chain_id}).then(res => {
-    //     console.log("verification:", res)
     // })
     // }
   },

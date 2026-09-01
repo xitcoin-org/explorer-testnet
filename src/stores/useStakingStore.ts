@@ -90,15 +90,11 @@ export const useStakingStore = defineStore('stakingStore', {
         if (this.blockchain.current?.providerChain.api && this.blockchain.current.providerChain.api.length > 0) {
           const signatures = useBaseStore().latest?.block?.last_commit.signatures;
           if (signatures) {
-            // console.log(signatures)
             const key = toBase64(fromHex(valconsToBase64(validatorAddr)));
             const exists = signatures.findIndex((x) => x.validator_address === key);
             if (exists < 0) {
               const client = CosmosRestClient.newDefault(this.blockchain.current.providerChain.api[0].address);
 
-              client.getInterchainSecurityProviderOptedInValidators(chain_id).then((res) => {
-                console.log(res);
-              });
               const res = await client.getInterchainSecurityValidatorRotatedKey(chain_id, validatorAddr);
               if (res.consumer_address) {
                 this.keyRotation[validatorAddr] = res.consumer_address;
