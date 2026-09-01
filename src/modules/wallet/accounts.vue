@@ -1,22 +1,21 @@
 <script lang="ts" setup>
 import { CosmosRestClient } from '@/libs/client';
-import { useBlockchain, useDashboard, useFormatter, useStorageStore } from '@/stores';
-import type { Coin, CoinWithPrice, Delegation } from '@/types';
+import { useBlockchain, useDashboard, useFormatter, useStorageStore, useWalletStore } from '@/stores';
+import type { CoinWithPrice, Delegation } from '@/types';
 import { fromBech32, toBase64, toBech32, toHex } from '@cosmjs/encoding';
 import { Icon } from '@iconify/vue';
-import { computed } from 'vue';
-import { ref } from 'vue';
-import { scanLocalKeys, type AccountEntry, scanCompatibleAccounts, type LocalKey } from './utils';
-import AdBanner from '@/components/ad/AdBanner.vue';
+import { computed, ref } from 'vue';
+import { type AccountEntry, scanCompatibleAccounts, type LocalKey } from './utils';
 
 const dashboard = useDashboard();
 const chainStore = useBlockchain();
 const format = useFormatter();
 const storageStore = useStorageStore();
+const walletStore = useWalletStore();
 const sourceAddress = ref(''); //
 const sourceHdPath = ref("m/44/118/0'/0/0"); //
-const selectedSource = ref({} as LocalKey); //
 const importStep = ref('step1');
+const importError = ref('');
 
 const conf = ref(JSON.parse(storageStore.currentStorage.getItem('imported-addresses') || localStorage.getItem('imported-addresses') || '{}') as Record<string, AccountEntry[]>);
 const balances = ref({} as Record<string, CoinWithPrice[]>);
@@ -120,13 +119,32 @@ const totalChange = computed(() => {
 
 // Adding Model Boxes
 const availableAccount = computed(() => {
-  if (sourceAddress.value) {
-    return scanCompatibleAccounts([{ cosmosAddress: sourceAddress.value, hdPath: sourceHdPath.value }]).filter(
+  if (!sourceAddress.value) return [];
+  try {
+    importError.value = '';
+    return scanCompatibleAccounts([{ cosmosAddress: sourceAddress.value.trim(), hdPath: sourceHdPath.value }]).filter(
       (x) => !addresses.value.includes(x.address)
     );
+  } catch {
+    importError.value = 'Enter a valid Xitcoin address beginning with xtc1.';
+    return [];
   }
-  return [];
 });
+
+const connectedAccounts = computed(() => {
+  const connected = walletStore.connectedWallet as LocalKey;
+  if (!connected?.cosmosAddress) return [];
+  try {
+    return scanCompatibleAccounts([connected]).filter((x) => !addresses.value.includes(x.address));
+  } catch {
+    return [];
+  }
+});
+
+async function addConnectedWallet() {
+  const account = connectedAccounts.value.find((x) => x.chainName === 'xitcoin-testnet') || connectedAccounts.value[0];
+  if (account) await addAddress(account);
+}
 
 // helper functions
 // remove address from the list
@@ -217,14 +235,29 @@ async function loadBalances(chainName: string, endpoint: string, address: string
       </div>
     </div>
 
-    <AdBanner
-      id="account-banner-ad"
-      unit="banner"
-      width="970px"
-      height="90px"
-    />
-
     <div class="overflow-x-auto">
+      <div v-if="accounts.length === 0" class="my-5 rounded-md bg-base-100 p-6 text-center">
+        <Icon icon="mdi:wallet-outline" class="mx-auto mb-3 text-5xl text-base-content/50" />
+        <h3 class="text-lg font-semibold">No accounts added yet</h3>
+        <p class="mx-auto mt-2 max-w-xl text-sm text-base-content/70">
+          Add the connected wallet or import a public Xitcoin address to display its XTC balance and delegations here.
+          Addresses are stored only in this browser.
+        </p>
+        <button
+          v-if="connectedAccounts.length"
+          type="button"
+          class="btn btn-primary btn-sm mt-4 mr-2"
+          @click="addConnectedWallet"
+        >
+          <Icon icon="mdi:wallet-plus-outline" />
+          Add connected wallet
+        </button>
+        <a href="#address-modal" class="btn btn-outline btn-sm mt-4">
+          <Icon icon="mdi:link-plus" />
+          Import public address
+        </a>
+      </div>
+
       <div
         v-for="{ key, subaccounts } in accounts"
         class="bg-base-100 rounded-md my-5 py-5"
@@ -350,7 +383,7 @@ async function loadBalances(chainName: string, endpoint: string, address: string
         </div>
       </div>
 
-      <div class="text-center bg-base-100 rounded-md my-4 p-4">
+      <div v-if="accounts.length > 0" class="text-center bg-base-100 rounded-md my-4 p-4">
         <a
           href="#address-modal"
           class="inline-flex items-center ml-3 rounded-md bg-base-100 px-3 py-2 text-sm font-semibold text-base-content shadow-sm ring-1 ring-inset ring-base-300 hover:bg-active"
@@ -363,7 +396,7 @@ async function loadBalances(chainName: string, endpoint: string, address: string
               d="M11.603 7.963a.75.75 0 00-.977 1.138 2.5 2.5 0 01.142 3.667l-3 3a2.5 2.5 0 01-3.536-3.536l1.225-1.224a.75.75 0 00-1.061-1.06l-1.224 1.224a4 4 0 105.656 5.656l3-3a4 4 0 00-.225-5.865z"
             />
           </svg>
-          Import Address
+          Import public address
         </a>
       </div>
     </div>
@@ -375,17 +408,21 @@ async function loadBalances(chainName: string, endpoint: string, address: string
           class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
           >✕</a
         >
-        <h3 class="font-bold text-lg mb-2">Derive Account From Address</h3>
+        <h3 class="font-bold text-lg mb-1">Import a public Xitcoin address</h3>
+        <p class="mb-4 text-sm text-base-content/70">
+          This is read-only. Importing an address cannot sign or broadcast a transaction.
+        </p>
         <div>
-          <label class="my-2">
+          <label class="form-control my-2">
+            <span class="label-text mb-2">Xitcoin address</span>
             <input
               v-model="sourceAddress"
               class="input input-bordered w-full input-sm"
-              placeholder="Input an address"
+              placeholder="xtc1…"
               @change="importStep = 'step2'"
             />
-            <input v-model="sourceHdPath" class="input input-bordered w-full input-sm" placeholder="m/44/118/0'/0/0" />
           </label>
+          <p v-if="importError" class="mt-2 text-sm text-error">{{ importError }}</p>
         </div>
         <div
           v-show="importStep === 'step2'"
@@ -417,12 +454,14 @@ async function loadBalances(chainName: string, endpoint: string, address: string
                 </div>
               </td>
               <td class="text-right">
-                <span
-                  class="btn !bg-yes !border-yes btn-xs text-white"
+                <button
+                  type="button"
+                  class="btn btn-primary btn-xs"
                   @click="addAddress(acc)"
                 >
                   <Icon icon="mdi:plus" />
-                </span>
+                  Add
+                </button>
               </td>
             </tr>
           </table>
