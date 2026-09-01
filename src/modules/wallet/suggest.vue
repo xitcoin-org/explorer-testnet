@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { suggestChain } from '@leapwallet/cosmos-snap-provider';
 import {
   useDashboard,
   useBlockchain,
@@ -67,7 +66,7 @@ async function onchange() {
   }
 
   try {
-    wallet.value === 'keplr' ? await initParamsForKeplr() : await initSnap();
+    wallet.value === 'keplr' ? await initParamsForKeplr() : initParamsForMetamask();
   } catch (cause) {
     conf.value = '';
     error.value = cause instanceof Error ? cause.message : 'Unable to load wallet parameters';
@@ -137,45 +136,25 @@ async function initParamsForKeplr() {
   );
 }
 
-async function initSnap() {
-  const chain = selected.value;
-  const [token] = chain.assets;
-
-  if (!chain.endpoints?.rest?.at(0)) throw new Error('REST endpoint is not configured');
-  const client = CosmosRestClient.newDefault(chain.endpoints.rest?.at(0)?.address || '');
-  const b = await client.getBaseBlockLatest();
-  const chainId = b.block.header.chain_id;
-
+function initParamsForMetamask() {
   conf.value = JSON.stringify(
     {
-      chainId,
-      chainName: chain.chainName,
-      bech32Config: {
-        bech32PrefixAccAddr: chain.bech32Prefix,
+      chainId: '0x18ae1',
+      chainName: 'Xitcoin Public Testnet',
+      nativeCurrency: {
+        name: 'Xitcoin',
+        symbol: 'XTC',
+        decimals: 18,
       },
-      bip44: {
-        coinType: Number(chain.coinType),
-      },
-      feeCurrencies: [
-        {
-          coinDenom: token.display,
-          coinMinimalDenom: token.base,
-          coinDecimals: token.denom_units.find((x) => x.denom === token.display)?.exponent || 6,
-          coinGeckoId: token.coingecko_id,
-          gasPriceStep: {
-            low: 0.0625,
-            average: 0.5,
-            high: 62.5,
-          },
-        },
-      ],
+      rpcUrls: ['https://evm-rpc-testnet.xitcoin.org'],
+      blockExplorerUrls: ['https://explorer-testnet.xitcoin.org'],
     },
     null,
     '\t'
   );
 }
 
-function suggest() {
+async function suggest() {
   error.value = '';
   if (!conf.value) return;
 
@@ -183,16 +162,38 @@ function suggest() {
     // @ts-ignore
     if (window.keplr) {
       // @ts-ignore
-      window.keplr.experimentalSuggestChain(JSON.parse(conf.value)).catch((cause) => {
+      window.keplr.experimentalSuggestChain(JSON.parse(conf.value)).catch((cause: unknown) => {
         error.value = cause instanceof Error ? cause.message : String(cause);
       });
     } else {
       error.value = 'Keplr is not available in this browser';
     }
-  } else {
-    suggestChain(JSON.parse(conf.value));
+    return;
+  }
+
+  const ethereum = (
+    window as typeof window & {
+      ethereum?: {
+        request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+      };
+    }
+  ).ethereum;
+
+  if (!ethereum) {
+    error.value = 'Metamask is not available in this browser';
+    return;
+  }
+
+  try {
+    await ethereum.request({
+      method: 'wallet_addEthereumChain',
+      params: [JSON.parse(conf.value)],
+    });
+  } catch (cause) {
+    error.value = cause instanceof Error ? cause.message : String(cause);
   }
 }
+
 </script>
 
 <template>
@@ -241,11 +242,17 @@ function suggest() {
         :disabled="!selected.chainName || !conf"
         @click="suggest"
       >
-        Suggest {{ selected.chainName }} to {{ wallet }}
+        <span v-if="wallet === 'keplr'">Suggest {{ selected.chainName }} to Keplr</span>
+        <span v-else>Add Xitcoin Public Testnet to Metamask</span>
       </button>
 
       <div class="mt-4 text-sm text-base-content/70">
-        If the chain is not officially supported by Keplr or Metamask Snap, submit these parameters to enable it.
+        <span v-if="wallet === 'keplr'">
+          If the chain is not officially supported by Keplr, submit these parameters to enable it.
+        </span>
+        <span v-else>
+          Add the Xitcoin EVM network (chain ID 101089) to Metamask.
+        </span>
       </div>
     </div>
 
