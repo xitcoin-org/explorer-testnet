@@ -15,6 +15,11 @@ interface ClaimResponse {
   ok?: boolean;
   amount_xtc?: string;
   txhash?: string;
+  tx_hash?: string;
+  hash?: string;
+  tx_response?: {
+    txhash?: string;
+  };
   error?: string;
 }
 
@@ -24,6 +29,7 @@ const address = ref('');
 const health = ref<HealthResponse>();
 const message = ref(t('xitcoin_faucet.checking'));
 const pending = ref(false);
+const txHash = ref('');
 
 const endpoint = computed(() => chainStore.current?.faucet?.endpoint?.replace(/\/$/, '') || '');
 const normalizedAddress = computed(() => {
@@ -46,6 +52,9 @@ const ready = computed(() => Boolean(health.value?.funded && endpoint.value));
 const canClaim = computed(
   () => Boolean(ready.value && validAddress.value && address.value && !pending.value)
 );
+const transactionPath = computed(() =>
+  txHash.value ? `/${chainStore.chainName}/tx/${txHash.value}` : ''
+);
 
 async function refreshHealth() {
   const response = await fetch(`${endpoint.value}/healthz`);
@@ -63,6 +72,7 @@ async function refreshHealth() {
 async function claim() {
   if (!canClaim.value) return;
   pending.value = true;
+  txHash.value = '';
   message.value = t('xitcoin_faucet.submitting');
   try {
     const response = await fetch(`${endpoint.value}/claim`, {
@@ -72,12 +82,20 @@ async function claim() {
     });
     const result: ClaimResponse = await response.json();
     if (!response.ok || !result.ok) throw new Error(result.error || 'claim_failed');
-    message.value = t('xitcoin_faucet.sent', { amount: result.amount_xtc || health.value?.claim_amount_xtc || '10' });
-    if (result.txhash && /^[A-Fa-f0-9]{64}$/.test(result.txhash)) {
-      window.location.assign(`/${chainStore.chainName}/tx/${result.txhash}`);
+
+    const returnedHash =
+      result.txhash || result.tx_hash || result.hash || result.tx_response?.txhash || '';
+    if (/^[A-Fa-f0-9]{64}$/.test(returnedHash)) {
+      txHash.value = returnedHash.toUpperCase();
     }
+
+    message.value = t('xitcoin_faucet.sent', {
+      amount: result.amount_xtc || health.value?.claim_amount_xtc || '10',
+    });
   } catch (error) {
-    message.value = t('xitcoin_faucet.refused', { error: error instanceof Error ? error.message : 'unknown_error' });
+    message.value = t('xitcoin_faucet.refused', {
+      error: error instanceof Error ? error.message : 'unknown_error',
+    });
   } finally {
     pending.value = false;
   }
@@ -133,6 +151,12 @@ onMounted(() => {
       </button>
       <div class="mt-4 rounded bg-base-200 p-3 text-sm text-base-content" aria-live="polite">
         {{ message }}
+      </div>
+      <div v-if="txHash" class="mt-3 rounded border border-success/40 bg-success/10 p-3">
+        <p class="mb-1 text-sm font-semibold text-success">Transaction confirmed</p>
+        <RouterLink :to="transactionPath" class="break-all text-sm text-primary underline">
+          {{ txHash }}
+        </RouterLink>
       </div>
       <p class="mt-3 text-sm text-base-content/70">
         {{ $t('xitcoin_faucet.policy') }}
