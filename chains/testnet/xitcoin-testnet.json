@@ -24,7 +24,7 @@
   "snapshot_provider": "",
   "sdk_version": "0.54.4",
   "coin_type": "60",
-  "min_tx_fee": "0",
+  "min_tx_fee": "1",
   "addr_prefix": "xtc",
   "consensus_prefix": "xtcvalcons",
   "logo": "https://explorer-testnet.xitcoin.org/assets/xitcoin-logo.png",
@@ -52,6 +52,11 @@
     "ibc-go",
     "ibc-transfer"
   ],
+  "keplr_price_step": {
+    "low": 7e-18,
+    "average": 1e-17,
+    "high": 2e-17
+  },
   "faucet": {
     "amount": "10000000000000000000axtc",
     "ip_limit": 3,

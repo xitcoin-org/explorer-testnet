@@ -11,11 +11,16 @@
     <div class="hidden md:!block">
       <a
         class="link link-primary no-underline mr-4"
-        href="https://github.com/ping-pub/explorer/blob/master/LICENSE"
-        target="noopener noreferrer"
+        href="https://github.com/xitcoin-org/explorer-testnet/blob/main/LICENSE"
+        target="_blank"
+        rel="noopener noreferrer"
         >License</a
       >
-      <a class="link link-primary no-underline" href="https://github.com/ping-pub/explorer" target="noopener noreferrer"
+      <a
+        class="link link-primary no-underline"
+        href="https://github.com/xitcoin-org/explorer-testnet"
+        target="_blank"
+        rel="noopener noreferrer"
         >Github</a
       >
     </div>
