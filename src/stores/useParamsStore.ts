@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { useBlockchain } from './useBlockchain';
+import { publicValidatorMoniker } from '@/libs';
 import { percent, formatNumber, formatTokenAmount } from '@/libs/utils';
 export interface stakingItem {
   unbonding_time: string;
@@ -180,7 +181,7 @@ export const useParamStore = defineStore('paramstore', {
       }));
       this.nodeVersion.items = Object.entries(res.default_node_info).map(([key, value]) => ({
         subtitle: key,
-        value: value,
+        value: key === 'moniker' ? publicValidatorMoniker(String(value), this.blockchain.chainName) : value,
       }));
     },
     async getBaseTendermintBlockLatest() {
