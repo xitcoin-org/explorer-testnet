@@ -7,7 +7,6 @@ import {
 import type { ChainConfig } from '@/types/chaindata';
 import { NetworkType } from '@/types/chaindata';
 import { CosmosRestClient } from '@/libs/client';
-import AdBanner from '@/components/ad/AdBanner.vue';
 
 const error = ref('');
 const conf = ref('');
@@ -256,6 +255,5 @@ async function suggest() {
       </div>
     </div>
 
-    <AdBanner id="suggest-banner-ad" unit="banner" width="970px" height="90px" />
   </div>
 </template>

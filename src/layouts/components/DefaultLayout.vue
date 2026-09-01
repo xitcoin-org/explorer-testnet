@@ -22,7 +22,6 @@ import type {
   VerticalNavItems,
 } from '../types';
 import dayjs from 'dayjs';
-import AdBanner from '@/components/ad/AdBanner.vue';
 
 const dashboard = useDashboard();
 dashboard.initial();
@@ -78,9 +77,6 @@ const behind = computed(() => {
 
 dayjs();
 
-const show_ad = computed(() => {
-  return location.hostname.indexOf('ping.pub') > -1;
-});
 </script>
 
 <template>
@@ -320,7 +316,6 @@ const show_ad = computed(() => {
             >
           </div>
         </div>
-        <AdBanner v-if="show_ad" />
         <RouterView v-slot="{ Component }">
           <Transition mode="out-in">
             <Component :is="Component" />
