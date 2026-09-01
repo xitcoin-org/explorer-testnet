@@ -9,10 +9,12 @@ standard [Ping Explorer](https://github.com/ping-pub/explorer) source.
 - Native asset: XTC
 - Base denomination: `axtc`
 - Decimals: 18
+- Genesis supply: 477,000,000 XTC
 - Faucet: 10 XTC per accepted request
 
 The public-facing network name is **Xitcoin Public Testnet**. The Cosmos chain
-ID above is its technical identifier.
+ID above is its technical identifier. The canonical public documentation is the
+[Xitcoin Guide](https://xitcoin.gitbook.io/guide).
 
 ## Upstream baseline
 
@@ -45,24 +47,29 @@ yarn build
 
 `yarn build` runs the TypeScript check and the production Vite build. The same
 commands run in GitHub Actions for every change to `main` and every pull request.
+See [installation.md](installation.md) for the complete local and production
+verification workflow.
 
 ## Public endpoints
 
 | Service | Endpoint |
 |---|---|
+| Explorer | `https://explorer-testnet.xitcoin.org` |
+| Explorer faucet | `https://explorer-testnet.xitcoin.org/xitcoin-testnet/faucet` |
+| Faucet health | `https://explorer-testnet.xitcoin.org/faucet-api/healthz` |
+| Standalone faucet | `https://faucet-testnet.xitcoin.org` |
 | CometBFT RPC | `https://rpc-testnet.xitcoin.org` |
 | Cosmos REST API | `https://api-testnet.xitcoin.org` |
 | gRPC | `grpc-testnet.xitcoin.org:443` |
 | EVM JSON-RPC | `https://evm-rpc-testnet.xitcoin.org` |
-| Faucet | `https://faucet-testnet.xitcoin.org` |
 
 ## Production deployment
 
 `scripts/deploy-production.sh` requires an explicit `EXPECTED_COMMIT`, builds
-that exact source commit, validates the
-network and faucet configuration, installs a timestamped release, updates the
-same-origin faucet proxy and switches the active Nginx symlink atomically. A
-failed validation restores the previous site and Nginx configuration.
+that exact source commit, validates the network and faucet configuration,
+installs a timestamped release, updates the same-origin faucet proxy and switches
+the active Nginx symlink atomically. A failed validation restores the previous
+site and Nginx configuration.
 
 The deployment script does not restart blockchain services and does not submit
 transactions.
