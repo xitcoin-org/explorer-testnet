@@ -276,13 +276,13 @@ function mapDelegators(messages: any[]) {
       <div class="flex flex-col lg:!flex-row pt-2 pb-1">
         <div class="flex-1">
           <div class="flex">
-            <div class="avatar mr-4 relative w-24 rounded-lg overflow-hidden">
-              <div class="w-24 rounded-lg absolute opacity-10"></div>
-              <div class="w-24 rounded-lg">
+            <div class="avatar mr-4 relative h-24 w-24 shrink-0 rounded-full overflow-hidden">
+              <div class="absolute h-24 w-24 rounded-full opacity-10"></div>
+              <div class="h-24 w-24 rounded-full overflow-hidden">
                 <img
                   v-if="identity && avatars[identity] !== 'undefined'"
                   v-lazy="logo(identity)"
-                  class="object-contain"
+                  class="h-24 w-24 rounded-full object-cover"
                   @error="
                     (e) => {
                       loadAvatar(identity);
