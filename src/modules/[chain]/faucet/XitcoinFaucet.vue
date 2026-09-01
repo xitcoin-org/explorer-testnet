@@ -36,6 +36,9 @@ const validAddress = computed(() => {
   }
 });
 const ready = computed(() => Boolean(health.value?.funded && endpoint.value));
+const canClaim = computed(
+  () => Boolean(ready.value && validAddress.value && address.value && !pending.value)
+);
 
 async function refreshHealth() {
   const response = await fetch(`${endpoint.value}/healthz`);
@@ -51,7 +54,7 @@ async function refreshHealth() {
 }
 
 async function claim() {
-  if (!ready.value || !validAddress.value || !address.value) return;
+  if (!canClaim.value) return;
   pending.value = true;
   message.value = t('xitcoin_faucet.submitting');
   try {
@@ -112,8 +115,10 @@ onMounted(() => {
         {{ $t('xitcoin_faucet.invalid_address') }}
       </p>
       <button
-        class="btn btn-primary mt-2 w-full bg-primary text-white disabled:bg-primary disabled:text-white disabled:opacity-50"
-        :disabled="!ready || !validAddress || !address || pending"
+        class="btn btn-primary mt-2 w-full text-white"
+        :class="{ 'cursor-not-allowed opacity-60': !canClaim }"
+        :aria-disabled="!canClaim"
+        :tabindex="canClaim ? 0 : -1"
         @click="claim"
       >
         <span v-if="pending" class="loading loading-spinner loading-sm"></span>
