@@ -81,15 +81,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto max-w-2xl py-10">
-    <div class="mb-8 flex flex-col items-center gap-4 text-center">
-      <img v-if="chainStore.current?.logo" :src="chainStore.current.logo" class="h-16 w-16 rounded-xl" alt="Xitcoin" />
-      <h1 class="text-3xl font-bold text-primary md:text-5xl">{{ $t('xitcoin_faucet.title') }}</h1>
-      <p class="text-base-content/70">{{ $t('xitcoin_faucet.intro') }}</p>
+  <div class="mx-auto max-w-xl py-6">
+    <div class="mb-5 flex items-center gap-3">
+      <img v-if="chainStore.current?.logo" :src="chainStore.current.logo" class="h-11 w-11 rounded-lg" alt="Xitcoin" />
+      <div>
+        <h1 class="text-2xl font-semibold text-base-content">{{ $t('xitcoin_faucet.title') }}</h1>
+        <p class="mt-1 text-sm text-base-content/70">{{ $t('xitcoin_faucet.intro') }}</p>
+      </div>
     </div>
 
-    <div class="rounded-xl bg-base-100 p-6 shadow">
-      <label class="mb-2 block font-medium" for="faucet-address">{{ $t('xitcoin_faucet.address') }}</label>
+    <div class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm">
+      <label class="mb-2 block text-sm font-medium" for="faucet-address">{{ $t('xitcoin_faucet.address') }}</label>
       <input
         id="faucet-address"
         v-model.trim="address"
@@ -100,12 +102,16 @@ onMounted(() => {
         spellcheck="false"
       />
       <p v-if="!validAddress" class="mt-2 text-sm text-error">{{ $t('xitcoin_faucet.invalid_address') }}</p>
-      <button class="btn btn-primary mt-5 w-full" :disabled="!ready || !validAddress || !address || pending" @click="claim">
+      <button
+        class="btn btn-primary mt-4 w-full disabled:opacity-60"
+        :disabled="!ready || !validAddress || !address || pending"
+        @click="claim"
+      >
         <span v-if="pending" class="loading loading-spinner loading-sm"></span>
         {{ $t('xitcoin_faucet.request') }}
       </button>
-      <div class="mt-4 rounded-lg bg-base-200 p-3 text-sm" aria-live="polite">{{ message }}</div>
-      <p class="mt-4 text-center text-xs text-base-content/60">
+      <div class="mt-4 rounded-md bg-base-200 p-3 text-sm text-base-content/80" aria-live="polite">{{ message }}</div>
+      <p class="mt-3 text-xs text-base-content/60">
         {{ $t('xitcoin_faucet.policy') }}
       </p>
     </div>
