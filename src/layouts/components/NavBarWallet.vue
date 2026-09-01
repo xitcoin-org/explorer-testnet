@@ -144,8 +144,4 @@ const params = computed(() => {
 .ping-connect-dropdown {
   display: none !important;
 }
-
-ping-connect-wallet img[src*='assets.leapwallet.io'] {
-  content: url('/assets/wallets/leap.png');
-}
 </style>
