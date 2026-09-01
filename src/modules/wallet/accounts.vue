@@ -20,6 +20,8 @@ const importError = ref('');
 const conf = ref(JSON.parse(storageStore.currentStorage.getItem('imported-addresses') || localStorage.getItem('imported-addresses') || '{}') as Record<string, AccountEntry[]>);
 const balances = ref({} as Record<string, CoinWithPrice[]>);
 const delegations = ref({} as Record<string, Delegation[]>);
+const loadingAddresses = ref(new Set<string>());
+const loadErrors = ref({} as Record<string, string>);
 
 // initial loading queue
 // load balances
@@ -30,13 +32,9 @@ Object.values(conf.value).forEach((imported) => {
       () =>
         new Promise((resolve) => {
           // continue only if the page is living
-          if (imported[i].endpoint) {
-            loadBalances(imported[i].chainName, imported[i].endpoint || '', imported[i].address).finally(() =>
-              resolve()
-            );
-          } else {
-            resolve();
-          }
+          loadBalances(imported[i].chainName, imported[i].endpoint || '', imported[i].address).finally(() =>
+            resolve()
+          );
         })
     );
   }
@@ -117,6 +115,13 @@ const totalChange = computed(() => {
     }, 0);
 });
 
+const totalValueFormatted = computed(() => formatUsd(totalValue.value));
+
+function formatUsd(value: number | undefined) {
+  const amount = value || 0;
+  return format.formatNumber(amount, amount > 0 && amount < 0.01 ? '0,0.000000' : '0,0.00');
+}
+
 // Adding Model Boxes
 const availableAccount = computed(() => {
   if (!sourceAddress.value) return [];
@@ -188,14 +193,32 @@ async function addAddress(acc: AccountEntry) {
 
 // load balances for an address
 async function loadBalances(chainName: string, endpoint: string, address: string) {
-  const endpointObj = chainStore.randomEndpoint(chainName);
-  const client = CosmosRestClient.newDefault(endpointObj?.address || endpoint);
-  await client.getBankBalances(address).then((res) => {
-    balances.value[address] = res.balances.filter((x) => x.denom.length < 10);
-  });
-  await client.getStakingDelegations(address).then((res) => {
-    delegations.value[address] = res.delegation_responses;
-  });
+  loadingAddresses.value.add(address);
+  delete loadErrors.value[address];
+  try {
+    const endpointObj = chainStore.randomEndpoint(chainName);
+    const resolvedEndpoint = endpointObj?.address || endpoint;
+    if (!resolvedEndpoint) throw new Error('No REST endpoint configured');
+
+    const client = CosmosRestClient.newDefault(resolvedEndpoint);
+    const [bankResponse, stakingResponse] = await Promise.all([
+      client.getBankBalances(address),
+      client.getStakingDelegations(address),
+    ]);
+    balances.value[address] = bankResponse.balances.filter((x) => x.denom.length < 10);
+    delegations.value[address] = stakingResponse.delegation_responses;
+
+    Object.values(conf.value).flat().forEach((account) => {
+      if (account.address === address && account.chainName === chainName) account.endpoint = resolvedEndpoint;
+    });
+    storageStore.currentStorage.setItem('imported-addresses', JSON.stringify(conf.value));
+  } catch {
+    balances.value[address] = [];
+    delegations.value[address] = [];
+    loadErrors.value[address] = 'Unable to load this account from the configured Xitcoin API.';
+  } finally {
+    loadingAddresses.value.delete(address);
+  }
 }
 </script>
 <template>
@@ -227,7 +250,7 @@ async function loadBalances(chainName: string, endpoint: string, address: string
         </div>
         <div class="flex flex-col text-right">
           <span>Total Value</span>
-          <span class="text-xl text-success font-bold">${{ format.formatNumber(totalValue, '0,0.[00]') }}</span>
+          <span class="text-xl text-success font-bold">${{ totalValueFormatted }}</span>
           <span class="text-sm" :class="format.color(totalChange)">{{
             format.formatNumber(totalChange, '+0,0.[00]')
           }}</span>
@@ -351,6 +374,9 @@ async function loadBalances(chainName: string, endpoint: string, address: string
                 </RouterLink>
               </li>
             </div>
+            <li v-if="subaccounts.every((x) => !loadingAddresses.has(x.account.address) && !x.delegation.amount)">
+              <span class="text-base-content/60">No delegations</span>
+            </li>
           </ul>
         </div>
         <div class="p-4 bg-base-200">Balances</div>
@@ -370,7 +396,7 @@ async function loadBalances(chainName: string, endpoint: string, address: string
                     ></span
                   >
                   <span class="float-right text-right"
-                    >${{ format.formatNumber(x.value, '0,0.[00]') }}<br /><span
+                    >${{ formatUsd(x.value) }}<br /><span
                       class="text-xs"
                       :class="format.color(x.change24h)"
                       >{{ format.formatNumber(((x.change24h || 0) * (x.value || 0)) / 100, '+0,0.[00]') }}</span
@@ -379,6 +405,17 @@ async function loadBalances(chainName: string, endpoint: string, address: string
                 </RouterLink>
               </li>
             </div>
+            <li v-if="subaccounts.some((x) => loadingAddresses.has(x.account.address))">
+              <span><span class="loading loading-spinner loading-xs mr-2"></span>Loading balances…</span>
+            </li>
+            <li v-for="x in subaccounts.filter((item) => loadErrors[item.account.address])" :key="`error-${x.account.address}`">
+              <span class="text-error">{{ loadErrors[x.account.address] }}</span>
+            </li>
+            <li
+              v-if="subaccounts.every((x) => !loadingAddresses.has(x.account.address) && !loadErrors[x.account.address] && x.balances.length === 0)"
+            >
+              <span class="text-base-content/60">No balances</span>
+            </li>
           </ul>
         </div>
       </div>
