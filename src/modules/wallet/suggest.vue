@@ -196,8 +196,8 @@ function suggest() {
 
 <template>
   <div class="rounded bg-base-100 p-4 text-center">
-    <div class="flex flex-col gap-4 text-left lg:flex-row lg:items-end">
-      <label class="form-control w-full lg:w-40">
+    <div class="grid grid-cols-1 gap-4 text-left md:grid-cols-2">
+      <label class="form-control w-full">
         <span class="label-text mb-2">Network</span>
         <select v-model="network" class="select select-bordered w-full" @change="changeNetwork">
           <option :value="NetworkType.Mainnet">Mainnet</option>
@@ -205,7 +205,7 @@ function suggest() {
         </select>
       </label>
 
-      <label class="form-control w-full lg:flex-1">
+      <label class="form-control w-full">
         <span class="label-text mb-2">Chain</span>
         <select v-model="selected" class="select select-bordered w-full" @change="onchange">
           <option v-for="c in chains" :key="c.chainName" :value="c">
@@ -213,17 +213,17 @@ function suggest() {
           </option>
         </select>
       </label>
+    </div>
 
-      <div class="flex min-h-12 items-center gap-5">
-        <label class="flex cursor-pointer items-center gap-2">
-          <input v-model="wallet" type="radio" value="keplr" class="radio radio-bordered" @change="onchange" />
-          Keplr
-        </label>
-        <label class="flex cursor-pointer items-center gap-2">
-          <input v-model="wallet" type="radio" value="metamask" class="radio radio-bordered" @change="onchange" />
-          Metamask
-        </label>
-      </div>
+    <div class="mt-4 flex items-center justify-center gap-6">
+      <label class="flex cursor-pointer items-center gap-2">
+        <input v-model="wallet" type="radio" value="keplr" class="radio radio-bordered" @change="onchange" />
+        Keplr
+      </label>
+      <label class="flex cursor-pointer items-center gap-2">
+        <input v-model="wallet" type="radio" value="metamask" class="radio radio-bordered" @change="onchange" />
+        Metamask
+      </label>
     </div>
 
     <div class="text-main mt-5">
