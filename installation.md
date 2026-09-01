@@ -1,133 +1,84 @@
-# Prerequisites
+# Installation and deployment
 
-1. Node and Yarn - Acquired using Node Version Manager (https://github.com/nvm-sh/nvm)
+This repository contains the official Ping-based explorer for the **Xitcoin Public Testnet**.
 
-# Quick Install for Prerequisites
+## Requirements
 
-1. Install Node Version Manager
-```sh
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
-```
-2. Install the latest version of NodeJS
-```sh
-nvm install node # "node" is an alias for the latest version
-```
-3. Install the latest version of NPM for Node
-```sh
-nvm install-latest-npm # get the latest supported npm version on the current node version
-```
-4. Install Yarn
-```sh
-npm install --global yarn
+- Node.js 22
+- Corepack
+- Yarn 1.22.22
+- Git
+
+## Local development
+
+```bash
+corepack enable
+yarn install --frozen-lockfile --ignore-engines
+yarn serve
 ```
 
-# Installation:
+The development server uses the public Xitcoin testnet endpoints configured in
+`chains/testnet/xitcoin-testnet.json`.
 
-1. Running with yarn
-```sh
-yarn --ignore-engines && yarn serve
+## Production build
+
+```bash
+corepack enable
+yarn install --frozen-lockfile --ignore-engines
+yarn build
 ```
 
-2. Building for web servers, like nginx, apache
-```sh
-yarn --ignore-engines && yarn build
-cp -r ./dist/* <ROOT_OF_WEB_SERVER>
-```
+`yarn build` runs the TypeScript check and the production Vite build. The
+output is written to `dist/`.
 
-3. Running with docker
-```sh
-./docker.sh
-docker run -d -p 8088:80 ping.pub/dashboard
-```
+Before publishing a build, verify:
 
-# Enable LCD for Ping.pub (do this on the config for your chain)
+- public network name: `Xitcoin Public Testnet`;
+- Cosmos chain ID: `xitcoin-testnet-v2-1`;
+- EVM chain ID: `101089` (`0x18ae1`);
+- native asset: XTC, base denomination `axtc`, 18 decimals;
+- faucet amount: exactly 10 XTC per accepted request;
+- faucet endpoint: `/faucet-api`.
 
-1. Set `enable = true` in `./config/app.toml`
-```
-###############################################################################
-###                           API Configuration                             ###
-###############################################################################
+## Production deployment
 
-[api]
+Production releases are installed with `scripts/deploy-production.sh`. The
+script requires `EXPECTED_COMMIT` to identify the exact Git commit being
+deployed.
 
-# Enable defines if the API server should be enabled.
-enable = true
+The deployment workflow:
 
-# Swagger defines if swagger documentation should automatically be registered.
-swagger = false
+1. downloads and checks out the expected source commit;
+2. installs locked dependencies;
+3. runs type-checking and the production build;
+4. validates the faucet health and live Cosmos chain ID;
+5. installs a timestamped release;
+6. validates all public explorer routes;
+7. switches the active Nginx symlink atomically.
 
-# Address defines the API server to listen on.
-address = "tcp://0.0.0.0:1317"
+If a validation fails after activation begins, the script restores the previous
+release and Nginx configuration automatically.
 
-# MaxOpenConnections defines the number of maximum open connections.
-max-open-connections = 1000
-```
+The deployment script does not restart blockchain services and does not submit
+transactions.
 
-2. add proxy server and enable CORS. NOTE: You must enable https as well.
+## Public verification
 
-```
-server {
-    server_name juno.api.ping.pub;
-    listen 443;
-    location / {
-        add_header Access-Control-Allow-Origin *;
-        add_header Access-Control-Max-Age 3600;
-        add_header Access-Control-Expose-Headers Content-Length;
+After deployment, verify:
 
-        proxy_pass http://<HOST>:1317;
+- <https://explorer-testnet.xitcoin.org/>
+- <https://explorer-testnet.xitcoin.org/xitcoin-testnet>
+- <https://explorer-testnet.xitcoin.org/xitcoin-testnet/faucet>
+- <https://explorer-testnet.xitcoin.org/faucet-api/healthz>
+- <https://rpc-testnet.xitcoin.org/status>
+- <https://api-testnet.xitcoin.org/cosmos/base/tendermint/v1beta1/node_info>
+- <https://evm-rpc-testnet.xitcoin.org>
 
-    }
-}
-```
-3. config your blockchain in [./chains/mainnet]()
+A healthy deployment reports `xitcoin-testnet-v2-1`, an advancing block height,
+`catching_up: false`, and a funded faucet claim amount of 10 XTC.
 
-# Theming
+## Security
 
-Colours live in the daisyUI themes in `tailwind.config.js`. Editing them re-themes
-the app; no component changes are needed.
-
-```js
-// tailwind.config.js
-daisyui: {
-  themes: [
-    {
-      light: {
-        ...require('daisyui/src/theming/themes')['[data-theme=light]'],
-        primary: '#0f766e',
-      },
-    },
-    {
-      dark: {
-        ...require('daisyui/src/theming/themes')['[data-theme=dark]'],
-        primary: '#2dd4bf',
-        'base-100': '#0b1220', // cards, sidebar, header
-        'base-200': '#111a2e', // page bands, table headers
-      },
-    },
-  ],
-},
-```
-
-Spreading the stock theme first means you only list what you want to change.
-
-The tokens you will reach for most:
-
-| token | used for |
-| --- | --- |
-| `primary` | active nav, buttons, links, chart accent |
-| `base-100` | cards, sidebar, header |
-| `base-200` / `base-300` | page bands, table headers, hover |
-| `base-content` | default text colour |
-| `info` `success` `warning` `error` | status text, badges, vote bars |
-
-Full list: https://daisyui.com/docs/colors/
-
-Tailwind reads the config at startup, so restart the dev server after editing.
-
-Two caveats:
-
-- A component that hardcodes a colour (`text-gray-400`, `bg-green-500`, ...) will
-  not follow the theme. Those are gradually being moved onto tokens.
-- `@ping-pub/widget` injects its own daisyUI build at runtime, which would
-  otherwise override these values. `postcss.config.js` re-emits the theme at a
-  higher specificity so the app's config wins - keep that plugin if you fork.
+Never commit secrets, recovery phrases, private keys, passwords, keyring data or
+production environment files. Use only the public configuration values required
+by the frontend.
