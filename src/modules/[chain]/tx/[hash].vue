@@ -1,43 +1,43 @@
 <script lang="ts" setup>
-import { useBaseStore, useBlockchain, useFormatter } from '@/stores';
+import { useBlockchain, useFormatter } from '@/stores';
 import DynamicComponent from '@/components/dynamic/DynamicComponent.vue';
 import { computed, ref, watch } from 'vue';
 import type { Tx, TxResponse } from '@/types';
-
 import JsonTree from '@/components/JsonTree.vue';
-import { useRouter } from 'vue-router';
 
 const props = defineProps(['hash', 'chain']);
-const router = useRouter();
-const searchHash = ref('');
-const searchError = ref('');
-const hashPattern = /^[A-Fa-f\d]{64}$/;
-
 const blockchain = useBlockchain();
-const baseStore = useBaseStore();
 const format = useFormatter();
+const loading = ref(false);
+const loadError = ref('');
 const tx = ref(
   {} as {
     tx: Tx;
     tx_response: TxResponse;
   }
 );
+
 async function loadTransaction(hash: string) {
+  loading.value = true;
+  loadError.value = '';
   tx.value = {} as { tx: Tx; tx_response: TxResponse };
-  tx.value = await blockchain.rpc.getTx(hash);
-}
-watch(() => props.hash, (hash) => {
-  if (hash) void loadTransaction(hash);
-}, { immediate: true });
-function search() {
-  const value = searchHash.value.trim();
-  if (!hashPattern.test(value)) {
-    searchError.value = 'Enter a valid 64-character transaction hash.';
-    return;
+  try {
+    tx.value = await blockchain.rpc.getTx(hash);
+  } catch {
+    loadError.value = 'The transaction could not be loaded. Please try again.';
+  } finally {
+    loading.value = false;
   }
-  searchError.value = '';
-  router.push(`/${props.chain}/tx/${value.toUpperCase()}`);
 }
+
+watch(
+  () => props.hash,
+  (hash) => {
+    if (hash) void loadTransaction(hash);
+  },
+  { immediate: true }
+);
+
 const messages = computed(() => {
   return (
     tx.value.tx?.body?.messages.map((x) => {
@@ -49,17 +49,22 @@ const messages = computed(() => {
     }) || []
   );
 });
-
 </script>
+
 <template>
   <div>
-    <form class="mb-4" role="search" @submit.prevent="search">
-      <div class="join flex w-full">
-        <input v-model="searchHash" type="text" class="input join-item input-sm h-10 min-w-0 flex-1 border border-base-300 bg-base-100 px-4 focus:border-primary" placeholder="Enter transaction hash" aria-label="Transaction hash" @input="searchError = ''" />
-        <button type="submit" class="btn btn-primary join-item !h-10 !min-h-10 py-0">Search</button>
+    <div v-if="loading" class="mb-4 flex min-h-40 items-center justify-center rounded bg-base-100 p-6 shadow">
+      <span class="loading loading-spinner loading-md text-primary"></span>
+      <span class="ml-3">Loading transaction…</span>
+    </div>
+
+    <div v-else-if="loadError" class="alert alert-error mb-4">
+      <div>
+        <p>{{ loadError }}</p>
+        <p class="mt-1 break-all text-xs">{{ props.hash }}</p>
       </div>
-      <p v-if="searchError" class="mt-2 text-sm text-error">{{ searchError }}</p>
-    </form>
+      <button class="btn btn-sm" type="button" @click="loadTransaction(props.hash)">Retry</button>
+    </div>
 
     <div v-if="tx.tx_response" class="bg-base-100 px-4 pt-3 pb-4 rounded shadow mb-4">
       <h2 class="card-title truncate mb-2">{{ $t('tx.title') }}</h2>
@@ -68,7 +73,7 @@ const messages = computed(() => {
           <tbody>
             <tr>
               <td>{{ $t('tx.tx_hash') }}</td>
-              <td class="overflow-hidden">{{ tx.tx_response.txhash }}</td>
+              <td class="overflow-hidden break-all">{{ tx.tx_response.txhash }}</td>
             </tr>
             <tr>
               <td>{{ $t('account.height') }}</td>
@@ -125,7 +130,7 @@ const messages = computed(() => {
 
     <div v-if="tx.tx_response" class="bg-base-100 px-4 pt-3 pb-4 rounded shadow mb-4">
       <h2 class="card-title truncate mb-2">{{ $t('account.messages') }}: ({{ messages.length }})</h2>
-      <div v-for="(msg, i) in messages">
+      <div v-for="(msg, i) in messages" :key="i">
         <div class="border border-slate-400 rounded-md mt-4">
           <DynamicComponent :value="msg" />
         </div>
