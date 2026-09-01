@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { suggestChain } from '@leapwallet/cosmos-snap-provider';
 import {
   useDashboard,
@@ -8,7 +8,6 @@ import {
 import type { ChainConfig } from '@/types/chaindata';
 import { NetworkType } from '@/types/chaindata';
 import { CosmosRestClient } from '@/libs/client';
-import { onMounted } from 'vue';
 import AdBanner from '@/components/ad/AdBanner.vue';
 
 const error = ref('');
@@ -16,33 +15,67 @@ const conf = ref('');
 const dashboard = useDashboard();
 const selected = ref({} as ChainConfig);
 const wallet = ref('keplr');
-const network = ref(NetworkType.Mainnet);
+const network = ref(NetworkType.Testnet);
 const mainnet = ref([] as ChainConfig[]);
 const testnet = ref([] as ChainConfig[]);
 const chains = computed(() => {
   return network.value === NetworkType.Mainnet ? mainnet.value : testnet.value;
 });
 
-onMounted(() => {
+onMounted(async () => {
   const chainStore = useBlockchain();
-  selected.value = chainStore.current || Object.values(dashboard.chains)[0];
-  initParamsForKeplr();
+  const [mainnetConfig, testnetConfig] = await Promise.all([
+    dashboard.loadLocalConfig(NetworkType.Mainnet),
+    dashboard.loadLocalConfig(NetworkType.Testnet),
+  ]);
 
-  dashboard.loadLocalConfig(NetworkType.Mainnet).then((res) => {
-    mainnet.value = Object.values<ChainConfig>(res);
-  });
-  dashboard.loadLocalConfig(NetworkType.Testnet).then((res) => {
-    testnet.value = Object.values<ChainConfig>(res);
-  });
+  mainnet.value = Object.values<ChainConfig>(mainnetConfig);
+  testnet.value = Object.values<ChainConfig>(testnetConfig);
+
+  const current = chainStore.current;
+  const currentTestnet = current && testnet.value.find((chain) => chain.chainName === current.chainName);
+  const currentMainnet = current && mainnet.value.find((chain) => chain.chainName === current.chainName);
+
+  if (currentTestnet) {
+    network.value = NetworkType.Testnet;
+    selected.value = currentTestnet;
+  } else if (currentMainnet) {
+    network.value = NetworkType.Mainnet;
+    selected.value = currentMainnet;
+  } else if (testnet.value.length > 0) {
+    network.value = NetworkType.Testnet;
+    selected.value = testnet.value[0];
+  } else if (mainnet.value.length > 0) {
+    network.value = NetworkType.Mainnet;
+    selected.value = mainnet.value[0];
+  }
+
+  await onchange();
 });
 
-function onchange() {
-  wallet.value === 'keplr' ? initParamsForKeplr() : initSnap();
+async function changeNetwork() {
+  selected.value = chains.value[0] || ({} as ChainConfig);
+  await onchange();
+}
+
+async function onchange() {
+  error.value = '';
+  if (!selected.value?.chainName) {
+    conf.value = '';
+    return;
+  }
+
+  try {
+    wallet.value === 'keplr' ? await initParamsForKeplr() : await initSnap();
+  } catch (cause) {
+    conf.value = '';
+    error.value = cause instanceof Error ? cause.message : 'Unable to load wallet parameters';
+  }
 }
 
 async function initParamsForKeplr() {
   const chain = selected.value;
-  if (!chain.endpoints?.rest?.at(0)) throw new Error('Endpoint does not set');
+  if (!chain.endpoints?.rest?.at(0)) throw new Error('REST endpoint is not configured');
   const client = CosmosRestClient.newDefault(chain.endpoints.rest?.at(0)?.address || '');
   const b = await client.getBaseBlockLatest();
   const chainid = b.block.header.chain_id;
@@ -107,7 +140,7 @@ async function initSnap() {
   const chain = selected.value;
   const [token] = chain.assets;
 
-  if (!chain.endpoints?.rest?.at(0)) throw new Error('Endpoint does not set');
+  if (!chain.endpoints?.rest?.at(0)) throw new Error('REST endpoint is not configured');
   const client = CosmosRestClient.newDefault(chain.endpoints.rest?.at(0)?.address || '');
   const b = await client.getBaseBlockLatest();
   const chainId = b.block.header.chain_id;
@@ -142,13 +175,18 @@ async function initSnap() {
 }
 
 function suggest() {
+  error.value = '';
+  if (!conf.value) return;
+
   if (wallet.value === 'keplr') {
     // @ts-ignore
     if (window.keplr) {
       // @ts-ignore
-      window.keplr.experimentalSuggestChain(JSON.parse(conf.value)).catch((e) => {
-        error.value = e;
+      window.keplr.experimentalSuggestChain(JSON.parse(conf.value)).catch((cause) => {
+        error.value = cause instanceof Error ? cause.message : String(cause);
       });
+    } else {
+      error.value = 'Keplr is not available in this browser';
     }
   } else {
     suggestChain(JSON.parse(conf.value));
@@ -157,37 +195,56 @@ function suggest() {
 </script>
 
 <template>
-  <div class="bg-base-100 p-4 rounded text-center">
-    <div class="flex text-center">
-      <select v-model="network" class="select select-bordered">
-        <option :value="NetworkType.Mainnet">Mainnet</option>
-        <option :value="NetworkType.Testnet">Testnet</option>
-      </select>
-      <select v-model="selected" class="select select-bordered mx-5" @change="onchange">
-        <option v-for="c in chains" :value="c">
-          {{ c.chainName }}
-        </option>
-      </select>
-      <label
-        ><input type="radio" v-model="wallet" value="keplr" class="radio radio-bordered" @change="onchange" />
-        Keplr</label
-      >
-      <label
-        ><input type="radio" v-model="wallet" value="metamask" class="radio radio-bordered ml-4" @change="onchange" />
-        Metamask</label
-      >
+  <div class="rounded bg-base-100 p-4 text-center">
+    <div class="flex flex-col gap-4 text-left lg:flex-row lg:items-end">
+      <label class="form-control w-full lg:w-40">
+        <span class="label-text mb-2">Network</span>
+        <select v-model="network" class="select select-bordered w-full" @change="changeNetwork">
+          <option :value="NetworkType.Mainnet">Mainnet</option>
+          <option :value="NetworkType.Testnet">Testnet</option>
+        </select>
+      </label>
+
+      <label class="form-control w-full lg:flex-1">
+        <span class="label-text mb-2">Chain</span>
+        <select v-model="selected" class="select select-bordered w-full" @change="onchange">
+          <option v-for="c in chains" :key="c.chainName" :value="c">
+            {{ c.chainName }}
+          </option>
+        </select>
+      </label>
+
+      <div class="flex min-h-12 items-center gap-5">
+        <label class="flex cursor-pointer items-center gap-2">
+          <input v-model="wallet" type="radio" value="keplr" class="radio radio-bordered" @change="onchange" />
+          Keplr
+        </label>
+        <label class="flex cursor-pointer items-center gap-2">
+          <input v-model="wallet" type="radio" value="metamask" class="radio radio-bordered" @change="onchange" />
+          Metamask
+        </label>
+      </div>
     </div>
+
     <div class="text-main mt-5">
-      <textarea v-model="conf" class="textarea textarea-bordered w-full" rows="15"></textarea>
+      <textarea v-model="conf" class="textarea textarea-bordered w-full font-mono text-sm" rows="15" readonly></textarea>
     </div>
-    <div class="mt-4 mb-4">
-      <button class="btn !bg-primary !border-primary text-white mr-2" @click="suggest">
-        Suggest {{ selected.chainName }} TO {{ wallet }}
+
+    <div v-if="error" class="alert alert-error mt-4 text-left" role="alert">
+      {{ error }}
+    </div>
+
+    <div class="mb-4 mt-4">
+      <button
+        class="btn btn-primary mr-2 text-white"
+        :disabled="!selected.chainName || !conf"
+        @click="suggest"
+      >
+        Suggest {{ selected.chainName }} to {{ wallet }}
       </button>
 
-      <div class="mt-4">
-        If the chain is not offically support on Keplr/Metamask Snap, you can submit these parameters to enable
-        Keplr/Metamask Snap.
+      <div class="mt-4 text-sm text-base-content/70">
+        If the chain is not officially supported by Keplr or Metamask Snap, submit these parameters to enable it.
       </div>
     </div>
 
