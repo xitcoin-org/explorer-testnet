@@ -20,7 +20,7 @@
       "provider": "Xitcoin"
     }
   ],
-  "coingecko": "",
+  "coingecko": "xitcoin",
   "snapshot_provider": "",
   "sdk_version": "0.54.4",
   "coin_type": "60",
@@ -33,7 +33,7 @@
       "base": "axtc",
       "symbol": "XTC",
       "exponent": "18",
-      "coingecko_id": "",
+      "coingecko_id": "xitcoin",
       "logo": "https://explorer-testnet.xitcoin.org/assets/xitcoin-logo.png"
     }
   ],

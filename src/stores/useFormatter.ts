@@ -107,7 +107,8 @@ export const useFormatter = defineStore('formatter', {
     },
     tokenValue(token?: Coin) {
       if (token) {
-        return numeral(this.tokenValueNumber(token)).format('0,0.[00]');
+        const value = this.tokenValueNumber(token);
+        return numeral(value).format(value > 0 && value < 0.01 ? '0,0.[000000]' : '0,0.[00]');
       }
       return '';
     },
