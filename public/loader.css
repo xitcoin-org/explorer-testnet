@@ -1,11 +1,23 @@
 #loading-bg {
-  background: var(--initial-loader-bg, #fff);
+  position: fixed;
+  inset: 0;
+  background: var(--initial-loader-bg, #171d30);
 }
 
 .loading-logo {
   position: absolute;
-  inset-block-start: 40%;
-  inset-inline-start: calc(50% - 75px);
+  inset-block-start: calc(50% - 46px);
+  inset-inline-start: 50%;
+  block-size: 80px;
+  inline-size: 80px;
+  transform: translate(-50%, -50%);
+}
+
+.loading-logo img {
+  display: block;
+  block-size: 100%;
+  inline-size: 100%;
+  object-fit: contain;
 }
 
 .pre-loading {
@@ -15,7 +27,7 @@
   block-size: 55px;
   border-radius: 50%;
   inline-size: 55px;
-  inset-block-start: calc(40% + 35px);
+  inset-block-start: calc(50% + 18px);
   inset-inline-start: calc(50% - 27.5px);
 }
 
