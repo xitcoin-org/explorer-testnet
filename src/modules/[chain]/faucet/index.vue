@@ -55,7 +55,6 @@ function claim() {
   faucetModal.value = true;
   // @ts-ignore
   get(`${faucetUrl.value}/send/${address.value}`).then((res: FaucetResponse) => {
-    console.log(res);
     ret.value = res;
   });
 }

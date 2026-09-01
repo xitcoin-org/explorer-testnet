@@ -31,8 +31,7 @@ export const requests: Partial<RequestRegistry> = {
         const staking = await client.getStakingPool();
         const inflation = Number(data.annual_inflation) / Number(staking.pool.bonded_tokens) || 0;
         return { inflation: inflation.toString() };
-      } catch (error) {
-        console.log('Error in adapter:', error);
+      } catch {
         return { inflation: '0' };
       }
     },

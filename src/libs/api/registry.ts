@@ -205,7 +205,6 @@ export function findApiProfileBySDKVersion(version: string): RequestRegistry | u
       }
     }
   }
-  // console.log(`Closest version to ${version}: ${closestVersion}`, VERSION_REGISTRY);
   if (!closestVersion) {
     return undefined;
   }

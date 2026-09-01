@@ -73,7 +73,6 @@ export const useIBCModule = defineStore('module-ibc', {
     async fetchIBCUrls(): Promise<any[]> {
       const prefix = this.chain.current?.networkType?.includes('testnet') ? 'testnets/' : '';
       const ibcEndpoint = new URL(`${prefix}_IBC`, IBC_API_URL + '/').toString();
-      console.log('Fetching IBC URLs from:', IBC_API_URL);
       let entries = await fetch(ibcEndpoint)
         .then((res) => res.json())
         .then((data: any) => (Array.isArray(data) ? data.filter((x: any) => x.name.match(this.chainName)) : []));

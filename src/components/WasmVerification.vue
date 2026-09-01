@@ -64,7 +64,6 @@ function fetchVerification() {
   const url = `${baseurl}/deploy-histories/${chain_id.value}?contract=${props.contract}`;
   get(url)
     .then((x) => {
-      console.log('verification:', x);
       verification.value = x;
     })
     .catch((e) => {
@@ -78,7 +77,6 @@ function fetchSchema() {
   const url = `${baseurl}/schemas/${chainId}?contract=${props.contract}`;
   get(url)
     .then(async (x) => {
-      console.log('schema:', x);
       schemas.value = x.sourceCodes;
     })
     .catch((e) => {
@@ -93,7 +91,6 @@ function fetchSourceCode() {
   const theme = baseStore.theme === 'dark' ? 'material-theme' : 'github-light';
   get(url)
     .then(async (x) => {
-      console.log('source codes:', x);
       for (let i = 0; i < x.sourceCodes.length; i++) {
         const sc = x.sourceCodes[i];
         sc.sourceCode = await codeToHtml(sc.sourceCode || '', { lang: sc.path.endsWith('.toml') ? 'toml' : 'rust', theme });
@@ -156,8 +153,6 @@ const queries = computed(() => {
 function callFunction(title: string, method: string, arg: Argument) {
   if (!props.contract) return;
 
-  // console.log("callFunction", title, method, arg)
-
   let args = {} as Record<string, any>;
   if (arg.properties)
     Object.keys(arg.properties).forEach((k) => {
@@ -167,12 +162,9 @@ function callFunction(title: string, method: string, arg: Argument) {
       }
     });
 
-  //console.log("args", arg.properties, JSON.stringify(args))
-
   if (title === 'ExecuteMsg') {
     let execution = {} as Record<string, any>;
     execution[method] = args;
-    console.log('execution', execution);
     dialog.open('wasm_execute_contract', { contract: props.contract, execution });
   } else {
     // QueryMsg
