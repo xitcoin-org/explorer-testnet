@@ -1,6 +1,5 @@
 /// <reference types="vite/client" />
 
-declare module '@personaxyz/ad-sdk';
 // Vite injects env vars as strings whatever the .env file looks like. Declaring
 // them as number/boolean hides bugs such as `"false"` being truthy.
 interface ImportMetaEnv {
