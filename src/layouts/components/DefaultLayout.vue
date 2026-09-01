@@ -243,12 +243,13 @@ dayjs();
         <Sponsors v-if="showDiscord" />
         <div class="px-4 text-sm pt-2 text-base-content/60 pb-2 uppercase">{{ $t('module.links') }}</div>
         <a
-          href="https://twitter.com/ping_pub"
+          href="https://xitcoin.org"
           target="_blank"
+          rel="noopener noreferrer"
           class="py-2 px-4 flex items-center cursor-pointer rounded-lg hover:bg-active"
         >
-          <Icon icon="mdi:twitter" class="text-xl mr-2" />
-          <div class="text-base capitalize flex-1 text-base-content/70">Twitter</div>
+          <Icon icon="mdi:web" class="text-xl mr-2" />
+          <div class="text-base capitalize flex-1 text-base-content/70">Xitcoin Website</div>
         </a>
         <a
           v-if="showDiscord"
@@ -260,12 +261,13 @@ dayjs();
           <div class="text-base capitalize flex-1 text-base-content/70">Discord</div>
         </a>
         <a
-          href="https://github.com/ping-pub/explorer/discussions"
+          href="https://xitcoin.gitbook.io/guide"
           target="_blank"
+          rel="noopener noreferrer"
           class="py-2 px-4 flex items-center rounded-lg cursor-pointer hover:bg-active"
         >
-          <Icon icon="mdi:frequently-asked-questions" class="text-xl mr-2" />
-          <div class="text-base capitalize flex-1 text-base-content/70">FAQ</div>
+          <Icon icon="mdi:book-open-page-variant" class="text-xl mr-2" />
+          <div class="text-base capitalize flex-1 text-base-content/70">Documentation</div>
         </a>
       </div>
     </div>
