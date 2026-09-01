@@ -148,7 +148,7 @@ export const useBlockchain = defineStore('blockchain', {
       if (end) {
         return JSON.parse(end);
       } else {
-        const all = this.current?.endpoints?.rest;
+        const all = this.dashboard.chains[chainName]?.endpoints?.rest;
         if (all) {
           const rn = Math.random();
           const endpoint = all[Math.floor(rn * all.length)];
