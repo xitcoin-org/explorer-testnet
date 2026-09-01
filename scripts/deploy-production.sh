@@ -99,6 +99,13 @@ test -s dist/assets/xitcoin-logo.png
 
 mkdir -p "$RELEASE"
 cp -a dist/. "$RELEASE/"
+
+# Preserve previously published hashed assets so browsers opened before the
+# atomic symlink switch can still finish loading their lazy JavaScript chunks.
+if test -d "$OLD_TARGET/assets"; then
+  cp -an "$OLD_TARGET/assets/." "$RELEASE/assets/"
+fi
+
 chmod -R a=rX "$RELEASE"
 
 if ! grep -q 'XITCOIN_FAUCET_PROXY' "$CONF"; then
