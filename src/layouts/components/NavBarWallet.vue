@@ -148,4 +148,13 @@ const params = computed(() => {
 ping-connect-wallet img[src*='assets.leapwallet.io'] {
   content: url('/assets/wallets/leap.png');
 }
+
+ping-connect-wallet .modal-box {
+  border: 1px solid rgba(166, 173, 186, 0.35);
+  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.7);
+}
+
+ping-connect-wallet .modal-box ul {
+  border: 1px solid rgba(166, 173, 186, 0.18);
+}
 </style>
