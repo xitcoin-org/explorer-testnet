@@ -81,37 +81,48 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto max-w-xl py-6">
-    <div class="mb-5 flex items-center gap-3">
-      <img v-if="chainStore.current?.logo" :src="chainStore.current.logo" class="h-11 w-11 rounded-lg" alt="Xitcoin" />
-      <div>
-        <h1 class="text-2xl font-semibold text-base-content">{{ $t('xitcoin_faucet.title') }}</h1>
-        <p class="mt-1 text-sm text-base-content/70">{{ $t('xitcoin_faucet.intro') }}</p>
-      </div>
+  <div>
+    <div class="mt-14 mb-6 flex flex-col items-center justify-center gap-4 text-center">
+      <img
+        v-if="chainStore.current?.logo"
+        :src="chainStore.current.logo"
+        class="h-16 w-16 rounded-md"
+        alt="Xitcoin"
+      />
+      <h1 class="text-3xl font-bold text-primary md:!text-6xl">
+        {{ $t('xitcoin_faucet.title') }}
+      </h1>
+      <p class="text-base text-base-content/70">
+        {{ $t('xitcoin_faucet.intro') }}
+      </p>
     </div>
 
-    <div class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm">
-      <label class="mb-2 block text-sm font-medium" for="faucet-address">{{ $t('xitcoin_faucet.address') }}</label>
+    <div class="my-5 rounded bg-base-100 px-4 pt-3 pb-4 shadow">
+      <h2 class="card-title">{{ $t('xitcoin_faucet.address') }}</h2>
       <input
         id="faucet-address"
         v-model.trim="address"
-        class="input input-bordered w-full"
+        class="mt-4 mb-2 w-full rounded-md border border-gray-300 bg-base-100 p-2 text-base-content"
         :class="{ 'input-error': !validAddress }"
         placeholder="xtc1…"
         autocomplete="off"
         spellcheck="false"
       />
-      <p v-if="!validAddress" class="mt-2 text-sm text-error">{{ $t('xitcoin_faucet.invalid_address') }}</p>
+      <p v-if="!validAddress" class="mb-3 text-sm text-error">
+        {{ $t('xitcoin_faucet.invalid_address') }}
+      </p>
       <button
-        class="btn btn-primary mt-4 w-full disabled:opacity-60"
+        class="btn btn-primary mt-2 w-full bg-primary text-white disabled:bg-primary disabled:text-white disabled:opacity-50"
         :disabled="!ready || !validAddress || !address || pending"
         @click="claim"
       >
         <span v-if="pending" class="loading loading-spinner loading-sm"></span>
         {{ $t('xitcoin_faucet.request') }}
       </button>
-      <div class="mt-4 rounded-md bg-base-200 p-3 text-sm text-base-content/80" aria-live="polite">{{ message }}</div>
-      <p class="mt-3 text-xs text-base-content/60">
+      <div class="mt-4 rounded bg-base-200 p-3 text-sm text-base-content" aria-live="polite">
+        {{ message }}
+      </div>
+      <p class="mt-3 text-sm text-base-content/70">
         {{ $t('xitcoin_faucet.policy') }}
       </p>
     </div>
