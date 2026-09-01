@@ -1,0 +1,44 @@
+name: Explorer CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: explorer-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Type-check and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+          cache-dependency-path: yarn.lock
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install locked dependencies
+        run: yarn install --frozen-lockfile --ignore-engines
+
+      - name: Type-check and build
+        run: yarn build
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096

@@ -1,0 +1,30 @@
+name: Chain configuration
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "chains/mainnet/**"
+      - "chains/testnet/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chain-config-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate chain configuration
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Validate Ping chain configuration
+        uses: ping-pub/ping-dashboard-config-checker@6f8ff6a07801f9a4082cd9b4fdc1e8d47f341519 # v1.0

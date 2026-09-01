@@ -1,0 +1,62 @@
+{
+  "chain_name": "xitcoin-testnet",
+  "registry_name": "Xitcoin Public Testnet",
+  "network_type": "testnet",
+  "api": [
+    {
+      "address": "https://api-testnet.xitcoin.org",
+      "provider": "Xitcoin"
+    }
+  ],
+  "rpc": [
+    {
+      "address": "https://rpc-testnet.xitcoin.org",
+      "provider": "Xitcoin"
+    }
+  ],
+  "grpc": [
+    {
+      "address": "grpc-testnet.xitcoin.org:443",
+      "provider": "Xitcoin"
+    }
+  ],
+  "coingecko": "",
+  "snapshot_provider": "",
+  "sdk_version": "0.54.4",
+  "coin_type": "60",
+  "min_tx_fee": "0",
+  "addr_prefix": "xtc",
+  "consensus_prefix": "xtcvalcons",
+  "logo": "https://explorer-testnet.xitcoin.org/assets/xitcoin-logo.png",
+  "assets": [
+    {
+      "base": "axtc",
+      "symbol": "XTC",
+      "exponent": "18",
+      "coingecko_id": "",
+      "logo": "https://explorer-testnet.xitcoin.org/assets/xitcoin-logo.png"
+    }
+  ],
+  "features": [
+    "dashboard",
+    "governance",
+    "staking",
+    "blocks",
+    "tx",
+    "uptime",
+    "supply",
+    "parameters",
+    "consensus"
+  ],
+  "keplr_features": [
+    "ibc-go",
+    "ibc-transfer"
+  ],
+  "faucet": {
+    "amount": "10000000000000000000axtc",
+    "ip_limit": 3,
+    "address_limit": 1,
+    "fees": "0axtc",
+    "endpoint": "/faucet-api"
+  }
+}
