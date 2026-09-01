@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
-import { fromBech32 } from '@cosmjs/encoding';
+import { fromBech32, fromHex, toBech32 } from '@cosmjs/encoding';
 import { useBlockchain } from '@/stores';
 import { useI18n } from 'vue-i18n';
 
@@ -26,10 +26,17 @@ const message = ref(t('xitcoin_faucet.checking'));
 const pending = ref(false);
 
 const endpoint = computed(() => chainStore.current?.faucet?.endpoint?.replace(/\/$/, '') || '');
+const normalizedAddress = computed(() => {
+  const value = address.value.trim();
+  if (/^0x[0-9a-fA-F]{40}$/.test(value)) {
+    return toBech32(chainStore.current?.bech32Prefix || 'xtc', fromHex(value.slice(2)));
+  }
+  return value;
+});
 const validAddress = computed(() => {
   if (!address.value) return true;
   try {
-    const decoded = fromBech32(address.value);
+    const decoded = fromBech32(normalizedAddress.value);
     return decoded.prefix === (chainStore.current?.bech32Prefix || 'xtc') && decoded.data.length === 20;
   } catch {
     return false;
@@ -61,7 +68,7 @@ async function claim() {
     const response = await fetch(`${endpoint.value}/claim`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ address: address.value.trim() }),
+      body: JSON.stringify({ address: normalizedAddress.value }),
     });
     const result: ClaimResponse = await response.json();
     if (!response.ok || !result.ok) throw new Error(result.error || 'claim_failed');
@@ -107,7 +114,7 @@ onMounted(() => {
         v-model.trim="address"
         class="mt-4 mb-2 w-full rounded-md border border-gray-300 bg-base-100 p-2 text-base-content"
         :class="{ 'input-error': !validAddress }"
-        placeholder="xtc1…"
+        placeholder="xtc1… or 0x…"
         autocomplete="off"
         spellcheck="false"
       />
