@@ -4,8 +4,13 @@ import DynamicComponent from '@/components/dynamic/DynamicComponent.vue';
 import { computed, ref, watch } from 'vue';
 import type { Tx, TxResponse } from '@/types';
 import JsonTree from '@/components/JsonTree.vue';
+import { useRouter } from 'vue-router';
 
 const props = defineProps(['hash', 'chain']);
+const router = useRouter();
+const searchHash = ref('');
+const searchError = ref('');
+const hashPattern = /^[A-Fa-f\d]{64}$/;
 const blockchain = useBlockchain();
 const format = useFormatter();
 const loading = ref(false);
@@ -38,6 +43,16 @@ watch(
   { immediate: true }
 );
 
+function search() {
+  const value = searchHash.value.trim();
+  if (!hashPattern.test(value)) {
+    searchError.value = 'Enter a valid 64-character transaction hash.';
+    return;
+  }
+  searchError.value = '';
+  router.push(`/${props.chain}/tx/${value.toUpperCase()}`);
+}
+
 const messages = computed(() => {
   return (
     tx.value.tx?.body?.messages.map((x) => {
@@ -53,6 +68,21 @@ const messages = computed(() => {
 
 <template>
   <div>
+    <form class="mb-4" role="search" @submit.prevent="search">
+      <div class="join flex w-full">
+        <input
+          v-model="searchHash"
+          type="text"
+          class="input join-item input-sm h-10 min-w-0 flex-1 border border-base-300 bg-base-100 px-4 focus:border-primary"
+          placeholder="Enter transaction hash"
+          aria-label="Transaction hash"
+          @input="searchError = ''"
+        />
+        <button type="submit" class="btn btn-primary join-item !h-10 !min-h-10 py-0">Search</button>
+      </div>
+      <p v-if="searchError" class="mt-2 text-sm text-error">{{ searchError }}</p>
+    </form>
+
     <div v-if="loading" class="mb-4 flex min-h-40 items-center justify-center rounded bg-base-100 p-6 shadow">
       <span class="loading loading-spinner loading-md text-primary"></span>
       <span class="ml-3">Loading transaction…</span>
