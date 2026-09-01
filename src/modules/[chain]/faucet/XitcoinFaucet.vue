@@ -84,7 +84,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <div class="mx-auto max-w-3xl">
     <div class="mt-14 mb-6 flex flex-col items-center justify-center gap-4 text-center">
       <img
         v-if="chainStore.current?.logo"
