@@ -79,7 +79,7 @@ const totalValue = computed(() => {
       value += format.tokenValueNumber({ amount: y.balance, denom: stakingStore.params.bond_denom });
     });
   });
-  return format.formatNumber(value, '0,0.00');
+  return format.formatNumber(value, value > 0 && value < 0.01 ? '0,0.000000' : '0,0.00');
 });
 
 function loadAccount(address: string) {
@@ -137,12 +137,37 @@ async function copyTxHash(hash: string) {
   }, 1200);
 }
 
+function decodeEventAttribute(value: string) {
+  try {
+    return String.fromCharCode(...fromBase64(value));
+  } catch {
+    return value;
+  }
+}
+
+function eventAttribute(attributes: { key: string; value: string }[], name: string) {
+  const encodedName = btoa(name);
+  const attribute = attributes.find((x) => x.key === name || x.key === encodedName);
+  if (!attribute) return '';
+  return attribute.key === name ? attribute.value : decodeEventAttribute(attribute.value);
+}
+
+function parseEventCoins(value: string) {
+  return value
+    .split(',')
+    .map((coin) => coin.trim().match(/^(\d+)([a-zA-Z][a-zA-Z0-9/:._-]*)$/))
+    .filter((coin): coin is RegExpMatchArray => Boolean(coin))
+    .map((coin) => ({ amount: coin[1], denom: coin[2] }));
+}
+
 function mapAmount(events: { type: string; attributes: { key: string; value: string }[] }[]) {
   if (!events) return [];
-  return events
-    .find((x) => x.type === 'coin_received')
-    ?.attributes.filter((x) => x.key === 'YW1vdW50' || x.key === `amount`)
-    .map((x) => (x.key === 'amount' ? x.value : String.fromCharCode(...fromBase64(x.value))));
+  const received = events.filter((x) => x.type === 'coin_received');
+  const recipientEvent = received.find((x) => eventAttribute(x.attributes, 'receiver') === props.address);
+  if (!recipientEvent) return [];
+  return parseEventCoins(eventAttribute(recipientEvent.attributes, 'amount')).map((coin) =>
+    format.formatToken(coin, true, '0,0.[000000]')
+  );
 }
 </script>
 <template>
