@@ -10,7 +10,7 @@ import { CosmosRestClient } from '@/libs/client';
 
 const error = ref('');
 const conf = ref('');
-const pageRevision = 'xitcoin-testnet-wallet-helper-v2';
+const pageRevision = 'xitcoin-testnet-wallet-helper-v3';
 const dashboard = useDashboard();
 const selected = ref({} as ChainConfig);
 const wallet = ref('keplr');
@@ -150,6 +150,7 @@ function initParamsForMetamask() {
         decimals: 18,
       },
       rpcUrls: ['https://evm-rpc-testnet.xitcoin.org'],
+      blockExplorerUrls: ['https://evm-explorer-testnet.xitcoin.org'],
     },
     null,
     '\t'
