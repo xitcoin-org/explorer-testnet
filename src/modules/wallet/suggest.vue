@@ -28,8 +28,12 @@ onMounted(async () => {
     dashboard.loadLocalConfig(NetworkType.Testnet),
   ]);
 
-  mainnet.value = Object.values<ChainConfig>(mainnetConfig);
-  testnet.value = Object.values<ChainConfig>(testnetConfig);
+  mainnet.value = Object.values<ChainConfig>(mainnetConfig).filter((chain) =>
+    chain.chainName.toLowerCase().includes('xitcoin')
+  );
+  testnet.value = Object.values<ChainConfig>(testnetConfig).filter((chain) =>
+    chain.chainName.toLowerCase().includes('xitcoin')
+  );
 
   const current = chainStore.current;
   const currentTestnet = current && testnet.value.find((chain) => chain.chainName === current.chainName);
@@ -201,7 +205,7 @@ async function suggest() {
       <label class="form-control w-full">
         <span class="label-text mb-2">Network</span>
         <select v-model="network" class="select select-bordered w-full" @change="changeNetwork">
-          <option :value="NetworkType.Mainnet">Mainnet</option>
+          <option v-if="mainnet.length" :value="NetworkType.Mainnet">Mainnet</option>
           <option :value="NetworkType.Testnet">Testnet</option>
         </select>
       </label>
