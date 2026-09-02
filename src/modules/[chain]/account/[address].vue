@@ -13,7 +13,14 @@ import { fromBase64 } from '@cosmjs/encoding';
 import { useQRCode } from '@vueuse/integrations/useQRCode';
 
 const props = defineProps(['address', 'chain']);
-const addressQrCode = useQRCode(computed(() => String(props.address || '')));
+const requestedAddress = computed(() => String(props.address || '').trim());
+const isValidAccountAddress = computed(
+  () =>
+    /^[a-z0-9]+1[a-z0-9]{38,58}$/.test(requestedAddress.value) ||
+    /^0x[A-Fa-f\d]{40}$/.test(requestedAddress.value)
+);
+const isEvmTransactionHash = computed(() => /^0x[A-Fa-f\d]{64}$/.test(requestedAddress.value));
+const addressQrCode = useQRCode(requestedAddress);
 
 const blockchain = useBlockchain();
 const stakingStore = useStakingStore();
@@ -33,7 +40,7 @@ const publicKeyCopied = ref(false);
 const copiedTxHash = ref('');
 const chart = {};
 onMounted(() => {
-  loadAccount(props.address);
+  if (isValidAccountAddress.value) loadAccount(requestedAddress.value);
 });
 const totalAmountByCategory = computed(() => {
   let sumDel = 0;
@@ -171,7 +178,16 @@ function mapAmount(events: { type: string; attributes: { key: string; value: str
 }
 </script>
 <template>
-  <div v-if="account">
+  <div v-if="!isValidAccountAddress" class="alert alert-error mb-4">
+    <div>
+      <p class="font-semibold">Invalid account address</p>
+      <p v-if="isEvmTransactionHash" class="mt-1 text-sm">
+        This is an EVM transaction hash. EVM transaction lookup is not available in this explorer yet.
+      </p>
+      <p v-else class="mt-1 break-all text-sm">{{ requestedAddress }}</p>
+    </div>
+  </div>
+  <div v-else-if="account">
     <!-- address -->
     <div class="bg-base-100 px-4 pt-3 pb-4 rounded mb-4 shadow">
       <div class="flex items-center">
