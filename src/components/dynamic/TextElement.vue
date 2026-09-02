@@ -51,7 +51,8 @@ onMounted(() => {
 });
 const toHexOutput = ref(false);
 const isConvertable = computed(() => {
-  return String(props.value).endsWith('=') && props.value.length !== 28;
+  const value = String(props.value);
+  return value.length % 4 === 0 && value.length !== 28 && /^[A-Za-z0-9+/]+={1,2}$/.test(value);
 });
 </script>
 <template>
