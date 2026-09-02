@@ -1,9 +1,11 @@
 # Xitcoin Public Testnet Explorer
 
-Official Cosmos explorer for the Xitcoin Public Testnet, built from the
-standard [Ping Explorer](https://github.com/ping-pub/explorer) source.
+Official Cosmos and EVM explorers for the Xitcoin Public Testnet. The Cosmos
+interface is built from the standard [Ping Explorer](https://github.com/ping-pub/explorer)
+source; EVM activity is indexed by Blockscout.
 
-- Public explorer: <https://explorer-testnet.xitcoin.org>
+- Cosmos explorer: <https://explorer-testnet.xitcoin.org>
+- EVM explorer: <https://evm-explorer-testnet.xitcoin.org>
 - Cosmos chain ID: `xitcoin-testnet-v2-1`
 - EVM chain ID: `101089` (`0x18ae1`)
 - Native asset: XTC
@@ -18,14 +20,16 @@ ID above is its technical identifier. The canonical public documentation is the
 
 ## Upstream baseline
 
-The initial source import is based on Ping Explorer commit
+The initial Cosmos explorer source import is based on Ping Explorer commit
 `ca4adc028c796bd076a756544497aa391808f805`. Xitcoin-specific behavior is kept
 small and isolated:
 
 - `chains/testnet/xitcoin-testnet.json` defines the network endpoints and asset;
 - `src/modules/[chain]/faucet/XitcoinFaucet.vue` provides the Xitcoin faucet UI;
 - `/faucet-api` is a same-origin reverse proxy to the separately operated faucet
-  service.
+  service;
+- `blockscout/xitcoin-compose.override.yml` records the canonical public
+  Blockscout settings without containing host credentials or private keys.
 
 The faucet extension does not mint tokens. It requests transfers from the
 finite funded testnet faucet account and enforces the server-side address and IP
@@ -54,7 +58,8 @@ verification workflow.
 
 | Service | Endpoint |
 |---|---|
-| Explorer | `https://explorer-testnet.xitcoin.org` |
+| Cosmos explorer | `https://explorer-testnet.xitcoin.org` |
+| EVM explorer | `https://evm-explorer-testnet.xitcoin.org` |
 | Explorer faucet | `https://explorer-testnet.xitcoin.org/xitcoin-testnet/faucet` |
 | Faucet health | `https://explorer-testnet.xitcoin.org/faucet-api/healthz` |
 | Standalone faucet | `https://faucet-testnet.xitcoin.org` |
@@ -65,13 +70,18 @@ verification workflow.
 
 ## Production deployment
 
-`scripts/deploy-production.sh` requires an explicit `EXPECTED_COMMIT`, builds
-that exact source commit, validates the network and faucet configuration,
-installs a timestamped release, updates the same-origin faucet proxy and switches
-the active Nginx symlink atomically. A failed validation restores the previous
-site and Nginx configuration.
+`scripts/deploy-production.sh` deploys only the Ping-based Cosmos explorer. It
+requires an explicit `EXPECTED_COMMIT`, builds that exact source commit,
+validates the network and faucet configuration, installs a timestamped release,
+updates the same-origin faucet proxy and switches the active Nginx symlink
+atomically. A failed validation restores the previous site and Nginx
+configuration.
 
-The deployment script does not restart blockchain services and does not submit
+Blockscout is operated as a separate Compose application. Its canonical
+Xitcoin-specific settings and verification procedure are documented in
+[docs/blockscout.md](docs/blockscout.md).
+
+Neither deployment procedure restarts blockchain services or submits
 transactions.
 
 ## Security

@@ -1,0 +1,15 @@
+# Canonical Xitcoin Public Testnet overrides for Blockscout.
+# Combine this file with the upstream backend and frontend Compose files.
+services:
+  backend:
+    environment:
+      # The Xitcoin EVM RPC exposes its first canonical height as block 1.
+      FIRST_BLOCK: "1"
+      # The current RPC does not expose trace methods.
+      INDEXER_DISABLE_INTERNAL_TRANSACTIONS_FETCHER: "true"
+      INDEXER_DISABLE_PENDING_TRANSACTIONS_FETCHER: "true"
+
+  frontend:
+    environment:
+      NEXT_PUBLIC_AD_BANNER_PROVIDER: "none"
+      NEXT_PUBLIC_INTERNAL_TXS_ENABLED: "false"
