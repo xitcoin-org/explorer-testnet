@@ -16,7 +16,7 @@ const props = defineProps(['address', 'chain']);
 const requestedAddress = computed(() => String(props.address || '').trim());
 const isValidAccountAddress = computed(
   () =>
-    /^[a-z0-9]+1[a-z0-9]{38,58}$/.test(requestedAddress.value) ||
+    /^xtc1[ac-hj-np-z02-9]{38,58}$/.test(requestedAddress.value) ||
     /^0x[A-Fa-f\d]{40}$/.test(requestedAddress.value)
 );
 const isEvmTransactionHash = computed(() => /^0x[A-Fa-f\d]{64}$/.test(requestedAddress.value));
