@@ -313,6 +313,6 @@
     "logo": "Logo", "token": "Token", "supply": "Supply", "display_denom": "Display denom", "atomic_denom": "Atomic denom"
   },
   "xitcoin_faucet": {
-    "title": "Xitcoin Testnet Faucet", "intro": "Receive 10 XTC for development and testing.", "address": "Xitcoin address", "invalid_address": "Invalid Xitcoin address.", "request": "Request 10 XTC", "checking": "Checking faucet status…", "ready": "Faucet ready: {amount} XTC per request.", "unavailable": "Faucet temporarily unavailable.", "submitting": "Submitting request…", "sent": "{amount} XTC sent.", "refused": "Request refused: {error}", "policy": "One request per address and up to three requests per IP every 24 hours."
+    "title": "Xitcoin Testnet Faucet", "intro": "Receive 10 XTC for development and testing.", "address": "Xitcoin address", "invalid_address": "Invalid Xitcoin address.", "request": "Request 10 XTC", "checking": "Checking faucet status…", "ready": "Faucet ready: {amount} XTC per request.", "unavailable": "Faucet temporarily unavailable.", "submitting": "Submitting request…", "sent": "{amount} XTC sent.", "refused": "Request refused: {error}", "policy": "One request per address and up to three requests per IP during each 24-hour period."
   }
 }
