@@ -25,6 +25,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Validate shell scripts
+        run: bash -n scripts/*.sh
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:

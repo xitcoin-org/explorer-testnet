@@ -54,6 +54,12 @@ commands run in GitHub Actions for every change to `main` and every pull request
 See [installation.md](installation.md) for the complete local and production
 verification workflow.
 
+Operational references:
+
+- [Testnet acceptance record](docs/testnet-acceptance.md)
+- [Mainnet readiness gates](docs/mainnet-readiness.md)
+- [Blockscout operations](docs/blockscout.md)
+
 ## Public endpoints
 
 | Service | Endpoint |
@@ -83,6 +89,9 @@ Xitcoin-specific settings and verification procedure are documented in
 
 Neither deployment procedure restarts blockchain services or submits
 transactions.
+
+Run `scripts/verify-testnet-production.sh` for a unified, read-only check of the
+Cosmos explorer, faucet, RPC and Blockscout instance.
 
 ## Security
 
