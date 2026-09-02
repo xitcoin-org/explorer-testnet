@@ -150,7 +150,7 @@ function initParamsForMetamask() {
         decimals: 18,
       },
       rpcUrls: ['https://evm-rpc-testnet.xitcoin.org'],
-      blockExplorerUrls: ['https://explorer-testnet.xitcoin.org'],
+      blockExplorerUrls: ['https://explorer-testnet.xitcoin.org/xitcoin-testnet'],
     },
     null,
     '\t'
