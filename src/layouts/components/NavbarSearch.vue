@@ -26,14 +26,16 @@ function selectValue(event: Event) {
 }
 function confirm() {
   errorMessage.value = '';
-  const key = searchQuery.value;
+  const key = searchQuery.value.trim();
   if (!key) {
     errorMessage.value = 'Please enter a value!';
     return;
   }
   const height = /^\d+$/;
-  const txhash = /^[A-Z\d]{64}$/;
-  const addr = /^[a-z\d]+1[a-z\d]{38,58}$/;
+  const txhash = /^[A-Fa-f\d]{64}$/;
+  const evmTxhash = /^0x[A-Fa-f\d]{64}$/;
+  const cosmosAddress = /^[a-z\d]+1[a-z\d]{38,58}$/;
+  const evmAddress = /^0x[A-Fa-f\d]{40}$/;
 
   const current = blockStore?.current?.chainName || '';
   const routeParams = vueRouters?.currentRoute?.value;
@@ -44,13 +46,15 @@ function confirm() {
       setTimeout(() => {
         closeSearchModal();
       }, 1000);
+    } else if (evmTxhash.test(key)) {
+      errorMessage.value = 'EVM transaction lookup is not available in this explorer yet.';
     } else if (txhash.test(key)) {
-      vueRouters.push({ path: `/${current}/tx/${key}` });
+      vueRouters.push({ path: `/${current}/tx/${key.toUpperCase()}` });
       setTimeout(() => {
         closeSearchModal();
       }, 1000);
       //     this.$router.push({ name: 'transaction', params: { chain: c.chain_name, hash: key } })
-    } else if (addr.test(key)) {
+    } else if (cosmosAddress.test(key) || evmAddress.test(key)) {
       vueRouters.push({ path: `/${current}/account/${key}` });
       setTimeout(() => {
         closeSearchModal();
