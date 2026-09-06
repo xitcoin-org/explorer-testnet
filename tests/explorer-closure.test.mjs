@@ -90,3 +90,13 @@ test('validator tables keep readable columns rather than inherit character wrapp
   assert.match(source,/\.validatore-table\.table :where\(th, td\) \{\s*overflow-wrap: normal;\s*word-break: normal;\s*white-space: nowrap;/);
   assert.equal((source.match(/Faites défiler le tableau horizontalement/g)||[]).length,3);
 });
+
+test('registry display denomination casing never changes the atomic exponent',async()=>{
+  const {parameterAssets,parameterValue}=await import('../src/libs/validatorProfile.ts');
+  const assets=parameterAssets([{base:'axtc',symbol:'XTC',display:'XTC',denom_units:[{denom:'axtc',exponent:0},{denom:'xtc',exponent:18}]}]);
+  assert.equal(assets[0].exponent,18);
+  assert.equal(parameterValue('5250000000000000000000000000','max_supply',assets),'5250000000 XTC');
+  assert.equal(parameterValue([{amount:'10000000',denom:'axtc'}],'min_deposit',assets),'0.00000000001 XTC');
+  assert.deepEqual(parameterAssets([{base:'axtc',symbol:'XTC',display:'unknown',denom_units:[{denom:'axtc',exponent:0}]}]),[]);
+  assert.equal(parameterValue('5250000000000000000000000000','max_supply',[]),'Non disponible');
+});
