@@ -42,7 +42,7 @@ function changeEndpoint(item: Endpoint) {
         </div>
       </div>
     </label>
-    <div tabindex="0" class="dropdown-content -left-6 w-80 menu shadow bg-base-200 rounded-box overflow-auto">
+    <div tabindex="0" class="dropdown-content -left-6 w-80 max-w-[calc(100vw-4rem)] sm:max-w-none menu shadow bg-base-200 rounded-box overflow-auto">
       <!-- rest -->
       <div class="px-4 py-2 text-sm text-base-content/60" v-if="chainStore.current?.endpoints?.rest">Rest Endpoint</div>
       <div
