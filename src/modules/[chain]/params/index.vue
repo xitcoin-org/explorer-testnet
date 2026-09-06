@@ -15,6 +15,7 @@ const slashingLoading = ref(true);
 const abciLoading = ref(true);
 
 onMounted(() => {
+  store.handleMintParam();
   store.handleBaseBlockLatest().finally(() => (chainLoading.value = false));
   store.handleStakingParams().finally(() => (stakingLoading.value = false));
   store.handleGovernanceParams().finally(() => (govLoading.value = false));
@@ -31,7 +32,7 @@ onMounted(() => {
       <Loading v-if="chainLoading" :bordered="false" />
       <div v-else class="grid grid-cols-2 md:!grid-cols-4 lg:!grid-cols-5 2xl:!grid-cols-6 gap-4">
         <div v-for="(item, index) of chain.items" :key="index" class="rounded-sm bg-active px-4 py-2">
-          <div class="text-xs mb-2 text-secondary">{{ item.subtitle }}</div>
+          <div class="text-xs mb-2 text-secondary">{{ item.subtitle.replace(/_/g, ' ') }}</div>
           <div class="text-base text-main">{{ item.value }}</div>
         </div>
       </div>

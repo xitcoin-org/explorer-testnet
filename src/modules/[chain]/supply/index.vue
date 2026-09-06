@@ -68,8 +68,8 @@ function pageload(p: number) {
           return {
             denom: denom.split('/')[denom.split('/').length - 1].toUpperCase(),
             amount: format.formatToken({ amount: coin.amount, denom: coin.denom }, false, '0,0.[000000000000000000]').trim(),
-            base: asset.base || coin.denom,
-            info: asset.display || coin.denom,
+            base: asset?.base || coin.denom,
+            info: asset?.display || coin.denom,
             logo: asset?.logo_URIs?.svg || asset?.logo_URIs?.png || '/logo.svg',
           };
         })
@@ -80,21 +80,21 @@ function pageload(p: number) {
 }
 </script>
 <template>
-  <div class="overflow-auto bg-base-100">
-    <table class="table table-compact">
+  <div tabindex="0" role="region" aria-label="Offre des jetons" class="overflow-auto bg-base-100">
+    <table aria-label="Offre des jetons" class="table table-compact">
       <thead class="bg-base-200">
         <tr>
-          <td>{{ $t('supply_table.logo') }}</td>
-          <td>{{ $t('supply_table.token') }}</td>
-          <td>{{ $t('supply_table.supply') }}</td>
-          <td>{{ $t('supply_table.display_denom') }}</td>
-          <td>{{ $t('supply_table.atomic_denom') }}</td>
+          <th scope="col">{{ $t('supply_table.logo') }}</th>
+          <th scope="col">{{ $t('supply_table.token') }}</th>
+          <th scope="col">{{ $t('supply_table.supply') }}</th>
+          <th scope="col">{{ $t('supply_table.display_denom') }}</th>
+          <th scope="col">{{ $t('supply_table.atomic_denom') }}</th>
         </tr>
       </thead>
       <tbody v-if="!loading">
         <tr v-for="item in list" class="hover">
           <td>
-            <img v-if="item.logo" :src="item.logo" class="w-7 h-7" />
+            <img alt="" v-if="item.logo" :src="item.logo" class="w-7 h-7" />
           </td>
           <td>{{ item.denom }}</td>
           <td>{{ item.amount }}</td>

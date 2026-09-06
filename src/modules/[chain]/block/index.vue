@@ -20,9 +20,9 @@ const list = computed(() => {
 <template>
   <div>
     <div class="tabs tabs-boxed bg-transparent mb-4">
-      <a class="tab text-base-content/60 uppercase" :class="{ 'tab-active': tab === 'blocks' }" @click="tab = 'blocks'">{{
+      <button type="button" class="tab text-base-content/60 uppercase" :class="{ 'tab-active': tab === 'blocks' }" @click="tab = 'blocks'">{{
         $t('block.recent')
-      }}</a>
+      }}</button>
       <RouterLink
         class="tab text-base-content/60 uppercase"
         :to="`/${chain}/block/${Number(base.latest?.block?.header.height || 0) + 10000}`"

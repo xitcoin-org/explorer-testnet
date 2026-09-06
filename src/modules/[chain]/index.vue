@@ -127,6 +127,7 @@ const amount = computed({
 
 <template>
   <div>
+    <p v-if="blockchain.chainName === 'xitcoin-testnet'" class="bg-base-100 rounded p-4 mb-4">Prix de marché : Non disponible. XTC est ici un jeton de testnet, sans cotation vérifiée.</p>
     <div v-if="coinInfo && coinInfo.name" class="bg-base-100 rounded shadow">
       <div class="grid grid-cols-2 md:grid-cols-3 p-4">
         <div class="col-span-2 md:col-span-1">
@@ -343,12 +344,7 @@ const amount = computed({
         <div class="px-4 pb-4">
           <ProposalListItem :proposals="store?.proposals" />
         </div>
-        <div
-          class="pb-8 text-center"
-          v-if="store.proposals?.proposals?.length === 0"
-        >
-          {{ $t('index.no_active_proposals') }}
-        </div>
+
       </template>
     </div>
 
@@ -370,28 +366,28 @@ const amount = computed({
           <div class="text-lg font-semibold text-main">
             {{ format.formatToken(walletStore.balanceOfStakingToken) }}
           </div>
-          <div class="text-sm" :class="color">${{ format.tokenValue(walletStore.balanceOfStakingToken) }}</div>
+          <div class="text-sm" :class="color">{{ format.tokenValue(walletStore.balanceOfStakingToken) }}</div>
         </div>
         <div class="bg-gray-100 dark:bg-[#373f59] rounded-sm px-4 py-3">
           <div class="text-sm mb-1">{{ $t('module.staking') }}</div>
           <div class="text-lg font-semibold text-main">
             {{ format.formatToken(walletStore.stakingAmount) }}
           </div>
-          <div class="text-sm" :class="color">${{ format.tokenValue(walletStore.stakingAmount) }}</div>
+          <div class="text-sm" :class="color">{{ format.tokenValue(walletStore.stakingAmount) }}</div>
         </div>
         <div class="bg-gray-100 dark:bg-[#373f59] rounded-sm px-4 py-3">
           <div class="text-sm mb-1">{{ $t('index.reward') }}</div>
           <div class="text-lg font-semibold text-main">
             {{ format.formatToken(walletStore.rewardAmount) }}
           </div>
-          <div class="text-sm" :class="color">${{ format.tokenValue(walletStore.rewardAmount) }}</div>
+          <div class="text-sm" :class="color">{{ format.tokenValue(walletStore.rewardAmount) }}</div>
         </div>
         <div class="bg-gray-100 dark:bg-[#373f59] rounded-sm px-4 py-3">
           <div class="text-sm mb-1">{{ $t('index.unbonding') }}</div>
           <div class="text-lg font-semibold text-main">
             {{ format.formatToken(walletStore.unbondingAmount) }}
           </div>
-          <div class="text-sm" :class="color">${{ format.tokenValue(walletStore.unbondingAmount) }}</div>
+          <div class="text-sm" :class="color">{{ format.tokenValue(walletStore.unbondingAmount) }}</div>
         </div>
       </div>
 
@@ -430,24 +426,24 @@ const amount = computed({
               </td>
               <td>
                 <div>
-                  <label
-                    for="delegate"
+                  <button type="button"
+
                     class="btn !btn-xs !btn-primary btn-ghost rounded-sm mr-2"
                     @click="
                       dialog.open('delegate', { validator_address: item.delegation.validator_address }, updateState)
                     "
                   >
                     {{ $t('account.btn_delegate') }}
-                  </label>
-                  <label
-                    for="withdraw"
+                  </button>
+                  <button type="button"
+
                     class="btn !btn-xs !btn-primary btn-ghost rounded-sm"
                     @click="
                       dialog.open('withdraw', { validator_address: item.delegation.validator_address }, updateState)
                     "
                   >
                     {{ $t('index.btn_withdraw_reward') }}
-                  </label>
+                  </button>
                 </div>
               </td>
             </tr>
@@ -456,22 +452,21 @@ const amount = computed({
       </div>
 
       <div class="grid grid-cols-3 gap-4 px-4 pb-6 mt-4">
-        <label for="PingTokenConvert" class="btn btn-primary text-white">{{ $t('index.btn_swap') }}</label>
-        <label for="send" class="btn !bg-yes !border-yes text-white" @click="dialog.open('send', {}, updateState)">{{
+        <label v-if="blockchain.chainName !== 'xitcoin-testnet'" for="PingTokenConvert" class="btn btn-primary text-white">{{ $t('index.btn_swap') }}</label>
+        <button type="button" class="btn !bg-yes !border-yes text-white" @click="dialog.open('send', {}, updateState)">{{
           $t('account.btn_send')
-        }}</label>
-        <label
-          for="delegate"
+        }}</button>
+        <button type="button"
+
           class="btn !bg-info !border-info text-white"
           @click="dialog.open('delegate', {}, updateState)"
-          >{{ $t('account.btn_delegate') }}</label
-        >
+          >{{ $t('account.btn_delegate') }}</button>
         <RouterLink to="/wallet/receive" class="btn !bg-info !border-info text-white hidden">{{
           $t('index.receive')
         }}</RouterLink>
       </div>
       <Teleport to="body">
-        <ping-token-convert
+        <ping-token-convert v-if="blockchain.chainName !== 'xitcoin-testnet'"
           :chain-name="blockchain?.current?.prettyName"
           :endpoint="blockchain?.endpoint?.address"
           :hd-path="walletStore?.connectedWallet?.hdPath"

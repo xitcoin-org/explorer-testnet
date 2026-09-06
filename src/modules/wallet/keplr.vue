@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { walletPublicName } from '@/libs/explorerPresentation';
 import { ref } from 'vue';
 import { useDashboard, useBlockchain } from '@/stores';
 import type { ChainConfig, DenomUnit } from '@/types/chaindata';
@@ -32,7 +33,7 @@ async function initParamsForKeplr() {
   conf.value = JSON.stringify(
     {
       chainId: chainid,
-      chainName: chain.chainName,
+      chainName: walletPublicName(chain),
       rpc: chain.endpoints?.rpc?.at(0)?.address,
       rest: chain.endpoints?.rest?.at(0)?.address,
       bip44: {
@@ -94,7 +95,7 @@ function suggest() {
     <div class="flex">
       <select v-model="selected" class="select select-bordered mx-5" @change="initParamsForKeplr">
         <option v-for="c in dashboard.chains" :value="c">
-          {{ c.chainName }}
+          {{ c.prettyName || c.chainName }}
         </option>
       </select>
       <button class="btn !bg-yes !border-yes text-white px-10" @click="suggest">

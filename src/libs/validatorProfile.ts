@@ -136,3 +136,21 @@ export function estimatedApr(
   if (percent > 0 && percent < 0.0001) return '< 0.0001 %';
   return `${Number(percent.toFixed(4))} %`;
 }
+
+/** Parameter names define units; small numeric values are not implicitly percentages. */
+export function parameterValue(value: unknown, key: string, assets: {base: string; symbol: string; exponent: number | string}[] = []): string {
+  if (Array.isArray(value)) {
+    if (!value.length) return UNAVAILABLE;
+    return value.map(coin => tokenAmount(coin?.amount, coin?.denom, assets.find(a => a.base === coin?.denom))).join(', ');
+  }
+  if (value === undefined || value === null || value === '') return UNAVAILABLE;
+  if (typeof value === 'boolean') return String(value);
+  if (/^(inflation|inflation_rate_change|inflation_max|inflation_min|goal_bonded|community_tax|base_proposer_reward|bonus_proposer_reward|quorum|threshold|veto_threshold|min_signed_per_window|slash_fraction_double_sign|slash_fraction_downtime)$/.test(key)) {
+    const decimal = decimalValue(value);
+    if (decimal === undefined || !Number.isFinite(Number(decimal)) || Number(decimal) > 1) return UNAVAILABLE;
+    const n = Number(decimal) * 100;
+    return n > 0 && n < 0.0001 ? '< 0.0001 %' : `${Number(n.toFixed(4))} %`;
+  }
+  if (key === 'max_supply' && assets.length === 1) return tokenAmount(value, assets[0].base, assets[0]);
+  return typeof value === 'string' || typeof value === 'number' ? String(value) : UNAVAILABLE;
+}

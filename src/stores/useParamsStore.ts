@@ -1,3 +1,4 @@
+import { parameterValue } from '@/libs/validatorProfile';
 import { defineStore } from 'pinia';
 import { useBlockchain } from './useBlockchain';
 import { publicValidatorMoniker } from '@/libs';
@@ -133,11 +134,13 @@ export const useParamStore = defineStore('paramstore', {
       if (excludes && excludes.indexOf('mint') > -1) {
         return;
       }
-      // this.getMintingInflation().then(res => {
-      //     const chainIndex = this.chain.items.findIndex(x => x.subtitle === 'inflation')
-      //     this.chain.items[chainIndex].value = `${percent(res)}%`
-      // })
-      const res = await this.getMintParam();
+      const index = this.chain.items.findIndex(x => x.subtitle === 'inflation');
+      this.chain.items[index].value = 'Non disponible';
+      const [inflation, params] = await Promise.allSettled([this.blockchain.rpc.getMintInflation(), this.getMintParam()]);
+      if (inflation.status === 'fulfilled') this.chain.items[index].value = parameterValue(inflation.value?.inflation, 'inflation');
+      this.mint.items = params.status === 'fulfilled' && params.value?.params
+        ? Object.entries(params.value.params).map(([subtitle, value]) => ({subtitle, value}))
+        : [{subtitle: 'Données', value: 'Non disponible'}];
     },
     async handleSlashingParams() {
       const res = await this.getSlashingParams();

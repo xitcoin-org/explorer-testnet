@@ -199,6 +199,7 @@ const loadAvatars = () => {
 };
 
 const logo = (identity?: string) => {
+  if (chainStore.chainName === 'xitcoin-testnet') return '/assets/validator-fallback.svg';
   if (!identity || !avatars.value[identity]) return '';
   const url = avatars.value[identity] || '';
   return url.startsWith('http') ? url : `https://s3.amazonaws.com/keybase_processed_uploads/${url}`;
@@ -273,15 +274,15 @@ loadAvatars();
     <div>
       <div class="flex items-center justify-between py-1">
         <div class="tabs tabs-boxed bg-transparent">
-          <a class="tab text-gray-400" :class="{ 'tab-active': tab === 'featured' }" @click="tab = 'featured'">{{
+          <button type="button" class="tab text-gray-400" :class="{ 'tab-active': tab === 'featured' }" @click="tab = 'featured'">{{
             $t('staking.popular')
-          }}</a>
-          <a class="tab text-gray-400" :class="{ 'tab-active': tab === 'active' }" @click="tab = 'active'">{{
+          }}</button>
+          <button type="button" class="tab text-gray-400" :class="{ 'tab-active': tab === 'active' }" @click="tab = 'active'">{{
             $t('staking.active')
-          }}</a>
-          <a class="tab text-gray-400" :class="{ 'tab-active': tab === 'inactive' }" @click="tab = 'inactive'">{{
+          }}</button>
+          <button type="button" class="tab text-gray-400" :class="{ 'tab-active': tab === 'inactive' }" @click="tab = 'inactive'">{{
             $t('staking.inactive')
-          }}</a>
+          }}</button>
         </div>
 
         <div class="text-lg font-semibold">{{ list.length }}/{{ staking.params.max_validators }}</div>
@@ -289,7 +290,7 @@ loadAvatars();
 
       <div class="bg-base-100 px-4 pt-3 pb-4 rounded shadow">
         <div class="overflow-x-auto">
-          <table class="table staking-table w-full">
+          <table aria-label="Validateurs" class="table staking-table w-full">
             <thead class="bg-base-200">
               <tr>
                 <th scope="col" class="uppercase" style="width: 3rem; position: relative">
@@ -323,7 +324,7 @@ loadAvatars();
                       <div class="w-8 h-8 rounded-full">
                         <img
                           v-if="logo"
-                          :src="logo"
+                          :src="logo" alt="Validator avatar"
                           class="object-contain"
                           @error="
                             (e) => {
@@ -388,17 +389,16 @@ loadAvatars();
                   <div v-if="v.jailed" class="badge badge-error gap-2 text-white">
                     {{ $t('staking.jailed') }}
                   </div>
-                  <label
+                  <button type="button"
                     v-else
-                    for="delegate"
+
                     class="btn btn-xs btn-primary rounded-sm capitalize"
                     @click="
                       dialog.open('delegate', {
                         validator_address: v.operator_address,
                       })
                     "
-                    >{{ $t('account.btn_delegate') }}</label
-                  >
+                    >{{ $t('account.btn_delegate') }}</button>
                 </td>
               </tr>
             </tbody>

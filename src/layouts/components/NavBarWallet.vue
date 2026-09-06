@@ -94,7 +94,7 @@ const params = computed(() => {
         <div class="flex items-center justify-between py-2 px-2 text-sm">
           <span class="text-xs">Persist session</span>
           <input
-            type="checkbox"
+            aria-label="Persist wallet session" type="checkbox"
             class="toggle toggle-xs"
             :checked="!storageStore.isSession"
             @change="storageStore.toggle()"
@@ -143,7 +143,7 @@ const params = computed(() => {
 }
 
 ping-connect-wallet img[src*='assets.leapwallet.io'] {
-  content: url('/assets/wallets/leap.png');
+  content: url('/assets/wallets/fallback.svg');
 }
 
 ping-connect-wallet .modal-box {
