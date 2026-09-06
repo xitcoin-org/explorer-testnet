@@ -695,6 +695,7 @@ function mapDelegators(messages: any[]) {
           {{ delegations.pagination?.total || 0 }}
         </span>
       </div>
+      <p class="text-xs mb-2 md:hidden">Faites défiler le tableau horizontalement pour voir toutes les colonnes.</p>
       <div tabindex="0" role="region" aria-label="Tableau du validateur" class="rounded overflow-auto">
         <table class="table validatore-table w-full" aria-label="Délégations du validateur">
           <thead><tr>
@@ -732,6 +733,7 @@ function mapDelegators(messages: any[]) {
       <div class="text-lg mb-4 font-semibold">
         {{ $t('account.transactions') }}
       </div>
+      <p class="text-xs mb-2 md:hidden">Faites défiler le tableau horizontalement pour voir toutes les colonnes.</p>
       <div tabindex="0" role="region" aria-label="Tableau du validateur" class="rounded overflow-auto">
         <table class="table validatore-table w-full" aria-label="Transactions du validateur">
           <thead><tr>
@@ -793,6 +795,7 @@ function mapDelegators(messages: any[]) {
             >{{ $t('account.btn_unbond') }}</button>
         </div>
       </div>
+      <p class="text-xs mb-2 md:hidden">Faites défiler le tableau horizontalement pour voir toutes les colonnes.</p>
       <div tabindex="0" role="region" aria-label="Tableau du validateur" class="rounded overflow-auto">
         <table class="table validatore-table w-full" aria-label="Événements de voting power">
           <thead><tr>
@@ -880,7 +883,11 @@ function mapDelegators(messages: any[]) {
 .validator-profile .flex-1 {
   min-width: 0;
 }
+.validatore-table.table { min-width: 640px; }
 .validatore-table.table :where(th, td) {
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: nowrap;
   padding: 0.6rem 1rem;
   font-size: 14px;
 }

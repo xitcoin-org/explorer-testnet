@@ -83,3 +83,10 @@ test('voting power event amounts retain small nonzero XTC values', async()=>{
   assert.equal(tokenAmount('1','axtc',{base:'axtc',symbol:'XTC',exponent:18}),'0.000000000000000001 XTC');
   assert.match(fs.readFileSync('src/modules/[chain]/staking/[validator].vue','utf8'), /coins.map\(\(coin\) => tokenAmount\(coin.amount, coin.denom, asset.value\)\)/);
 });
+
+test('validator tables keep readable columns rather than inherit character wrapping',()=>{
+  const source=fs.readFileSync('src/modules/[chain]/staking/[validator].vue','utf8');
+  assert.match(source,/\.validatore-table\.table \{ min-width: 640px; \}/);
+  assert.match(source,/\.validatore-table\.table :where\(th, td\) \{\s*overflow-wrap: normal;\s*word-break: normal;\s*white-space: nowrap;/);
+  assert.equal((source.match(/Faites défiler le tableau horizontalement/g)||[]).length,3);
+});
