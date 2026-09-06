@@ -100,3 +100,10 @@ test('registry display denomination casing never changes the atomic exponent',as
   assert.deepEqual(parameterAssets([{base:'axtc',symbol:'XTC',display:'unknown',denom_units:[{denom:'axtc',exponent:0}]}]),[]);
   assert.equal(parameterValue('5250000000000000000000000000','max_supply',[]),'Non disponible');
 });
+
+test('wallet suggestions do not substitute a fictitious CoinGecko identifier',()=>{
+  for(const path of ['src/modules/wallet/suggest.vue','src/modules/wallet/keplr.vue']){
+    const source=fs.readFileSync(path,'utf8');assert.ok(!source.includes("coingecko_id || 'unknown'"));
+    assert.equal((source.match(/coinGeckoId: chain.assets\[0\].coingecko_id \|\| undefined/g)||[]).length,3);
+  }
+});
