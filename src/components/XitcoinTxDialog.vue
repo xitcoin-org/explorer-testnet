@@ -323,7 +323,7 @@ async function submit() {
           :disabled="disabled"
           maxlength="256"
         />
-        <p v-if="status" role="status" class="break-all">{{ status }}</p>
+        <p v-if="status" role="status" class="break-words">{{ status }}</p>
         <p v-if="gas">
           Estimated gas: {{ gas }} · Fee: {{ displayAmount(fee) }} XTC
         </p>
@@ -399,6 +399,8 @@ select:disabled {
   color: #fca5a5;
 }
 .btn {
+  /* Keep text/background contrast stable when wallet actions become enabled. */
+  transition: none !important;
   background: #e2e8f0 !important;
   color: #172033 !important;
   border-color: #64748b !important;
