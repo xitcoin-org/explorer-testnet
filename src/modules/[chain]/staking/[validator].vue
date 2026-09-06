@@ -432,7 +432,7 @@ function mapDelegators(messages: any[]) {
               <div class="flex items-center mb-2">
                 <Icon icon="mdi-lock" class="text-xl mr-1" />
                 <span class="font-bold mr-2"
-                  >{{ $t('staking.validator_bond_share') }}:
+                  >Validator Bonded Shares:
                 </span>
                 <span :title="v.validator_bond_shares">
                   {{ sharesValue(v.validator_bond_shares) }}
@@ -463,7 +463,7 @@ function mapDelegators(messages: any[]) {
                 <h4>
                   {{ amount(v.tokens) }}
                 </h4>
-                <span class="text-sm">{{ $t('staking.total_bonded') }}</span>
+                <span class="text-sm">Validator Tokens</span>
               </div>
             </div>
             <div class="flex mb-2">
