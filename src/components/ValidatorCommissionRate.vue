@@ -3,23 +3,48 @@ import ApexCharts from 'vue3-apexcharts';
 import { computed, type PropType } from 'vue';
 import { useFormatter } from '@/stores';
 import type { CommissionRate } from '@/types';
+import { decimalValue, UNAVAILABLE } from '@/libs/validatorProfile';
 
 const props = defineProps({
   commission: { type: Object as PropType<CommissionRate> },
 });
 
-let rate = computed(() => Number(props.commission?.commission_rates.rate || 0) * 100);
-let change = computed(() => Number(props.commission?.commission_rates.max_change_rate || 0) * 100);
-let max = computed(() => Number(props.commission?.commission_rates.max_rate || 1) * 100);
+const valid = computed(() => {
+  const rates = props.commission?.commission_rates;
+  return (
+    [rates?.rate, rates?.max_change_rate, rates?.max_rate].every(
+      (value) => decimalValue(value) !== undefined && Number(value) <= 1
+    ) && Number(rates?.rate) <= Number(rates?.max_rate)
+  );
+});
+const rate = computed(
+  () => Number(props.commission?.commission_rates?.rate) * 100
+);
+const change = computed(
+  () => Number(props.commission?.commission_rates?.max_change_rate) * 100
+);
+const max = computed(
+  () => Number(props.commission?.commission_rates?.max_rate) * 100
+);
+const percent = (value: number) =>
+  value > 0 && value < 0.0001 ? '< 0.0001' : String(Number(value.toFixed(4)));
 
 const left = rate;
 const right = computed(() => max.value - rate.value);
 
-const s1 = computed(() => (left.value > change.value ? left.value - change.value : 0));
-const s2 = computed(() => (left.value > change.value ? change.value : left.value));
+const s1 = computed(() =>
+  left.value > change.value ? left.value - change.value : 0
+);
+const s2 = computed(() =>
+  left.value > change.value ? change.value : left.value
+);
 const s3 = 2;
-const s4 = computed(() => (right.value > change.value ? change.value : right.value));
-const s5 = computed(() => (right.value > change.value ? right.value - change.value : 0));
+const s4 = computed(() =>
+  right.value > change.value ? change.value : right.value
+);
+const s5 = computed(() =>
+  right.value > change.value ? right.value - change.value : 0
+);
 
 const series = computed(() => [s1.value, s2.value, s3, s4.value, s5.value]);
 
@@ -49,7 +74,13 @@ const chartConfig = computed(() => {
       lineCap: 'round',
       colors: ['hsl(var(--b1))'],
     },
-    labels: ['Available', 'Daily Change', 'Commission Rate', 'Daily Change', 'Available'],
+    labels: [
+      'Available',
+      'Daily Change',
+      'Commission Rate',
+      'Daily Change',
+      'Available',
+    ],
     states: {
       hover: {
         filter: { type: 'none' },
@@ -76,7 +107,7 @@ const chartConfig = computed(() => {
               offsetY: -15,
               fontWeight: 500,
               fontSize: '2.125rem',
-              formatter: (value: unknown) => `${rate.value.toFixed(1)}%`,
+              formatter: (value: unknown) => `${percent(rate.value)}%`,
               color: primaryText,
             },
             total: {
@@ -84,7 +115,7 @@ const chartConfig = computed(() => {
               label: 'Commission Rate',
               fontSize: '1rem',
               color: secondaryText,
-              formatter: () => `${rate.value.toFixed(1)}%`,
+              formatter: () => `${percent(rate.value)}%`,
             },
           },
         },
@@ -106,24 +137,30 @@ const chartConfig = computed(() => {
   <div class="bg-base-100 rounded shadow p-4">
     <div class="text-lg text-main font-semibold mb-1">Commission Rate</div>
     <div class="text-sm text-base-content/70">
-      {{ `Updated at ${format.toDay(props.commission?.update_time, 'short')}` }}
+      {{
+        props.commission?.update_time &&
+        Number.isFinite(Date.parse(props.commission.update_time))
+          ? `Updated at ${format.toDay(props.commission.update_time, 'short')}`
+          : UNAVAILABLE
+      }}
     </div>
-    <div class="w-80 m-auto">
+    <p v-if="!valid">{{ UNAVAILABLE }}</p>
+    <div v-if="valid" class="w-full max-w-xs m-auto">
       <ApexCharts type="donut" :options="chartConfig" :series="series" />
     </div>
-    <div>
+    <div v-if="valid">
       <div class="flex items-center justify-center flex-wrap gap-x-3">
         <div class="flex items-center gap-x-2">
           <div class="bg-success w-[6px] h-[6px] rounded-full"></div>
-          <span class="text-caption">Rate:{{ rate.toFixed(0) }}%</span>
+          <span class="text-caption">Rate:{{ percent(rate) }}%</span>
         </div>
         <div class="flex items-center gap-x-2">
           <div class="bg-success w-[6px] h-[6px] rounded-full opacity-60"></div>
-          <span class="text-caption">24h: ±{{ change }}%</span>
+          <span class="text-caption">24h: ±{{ percent(change) }}%</span>
         </div>
         <div class="flex items-center gap-x-2">
           <div class="bg-secondary w-[6px] h-[6px] rounded-full"></div>
-          <span class="text-caption">Max:{{ max }}%</span>
+          <span class="text-caption">Max:{{ percent(max) }}%</span>
         </div>
       </div>
     </div>
