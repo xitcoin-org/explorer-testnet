@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed } from '@vue/reactivity';
-import MdEditor from 'md-editor-v3';
+import { MdPreview as MdEditor } from 'md-editor-v3';
 import ObjectElement from '@/components/dynamic/ObjectElement.vue';
 import { useBaseStore, useBlockchain, useFormatter, useGovStore, useStakingStore, useTxDialog } from '@/stores';
 import { PageRequest, type GovProposal, type GovVote, type PaginatedProposalDeposit, type Pagination } from '@/types';

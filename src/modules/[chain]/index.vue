@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import MdEditor from 'md-editor-v3';
+import { MdPreview as MdEditor } from 'md-editor-v3';
 import PriceMarketChart from '@/components/charts/PriceMarketChart.vue';
 
 import { Icon } from '@iconify/vue';
