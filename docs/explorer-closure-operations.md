@@ -2,7 +2,7 @@
 
 XTC on `xitcoin-testnet-v2-1` has no verified market quote. The CoinGecko
 identifier previously selected a Cronos market and must not price testnet balances.
-Missing quotes display `Non disponible`. Keybase artwork is optional; this testnet
+Missing quotes display `Unavailable`. Keybase artwork is optional; this testnet
 uses an original generic local avatar. Wallet artwork falls back to an original
 local wallet symbol on load failure. No external logo was newly copied. The unused legacy local Leap PNG was removed because its provenance was not documented in this repository.
 The upstream Google Analytics tag was removed.

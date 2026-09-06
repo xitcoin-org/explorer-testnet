@@ -20,21 +20,21 @@ cleanup() {
 trap cleanup EXIT
 
 fail() {
-  echo "[ÉCHEC] $*" >&2
+  echo "[FAIL] $*" >&2
   exit 1
 }
 
 [[ "$EXPECTED_COMMIT" =~ ^[0-9a-f]{40}$ ]] ||
-  fail 'EXPECTED_COMMIT ABSENT OU INVALIDE'
+  fail 'EXPECTED_COMMIT IS MISSING OR INVALID'
 
-test -f "$CONF" || fail "CONFIGURATION NGINX ABSENTE: $CONF"
+test -f "$CONF" || fail "NGINX CONFIGURATION IS MISSING: $CONF"
 grep -Eq 'server_name[[:space:]]+explorer-testnet\.xitcoin\.org;' "$CONF" ||
-  fail "DOMAINE ABSENT DE LA CONFIGURATION NGINX"
+  fail "DOMAIN IS MISSING FROM THE NGINX CONFIGURATION"
 grep -Eq 'root[[:space:]]+/var/www/xitcoin-testnet-explorer;' "$CONF" ||
-  fail "RACINE NGINX INATTENDUE"
-test -L "$ACTIVE" || fail "LIEN ACTIF ABSENT: $ACTIVE"
+  fail "UNEXPECTED NGINX ROOT"
+test -L "$ACTIVE" || fail "ACTIVE SYMLINK IS MISSING: $ACTIVE"
 OLD_TARGET="$(readlink -f "$ACTIVE")"
-test -d "$OLD_TARGET" || fail "VERSION ACTIVE INTROUVABLE: $OLD_TARGET"
+test -d "$OLD_TARGET" || fail "ACTIVE RELEASE WAS NOT FOUND: $OLD_TARGET"
 
 mkdir -p "$BACKUP_DIR" "$RELEASES"
 cp -a "$CONF" "$BACKUP_DIR/nginx.conf.before"
@@ -45,7 +45,7 @@ rollback() {
   command="${2:-unknown}"
   trap - ERR
 
-  echo "[ÉCHEC] ligne=$line commande=$command statut=$status" >&2
+  echo "[FAIL] line=$line command=$command status=$status" >&2
 
   if test "$ACTIVATED" -eq 1; then
     ln -s "$OLD_TARGET" "${ACTIVE}.rollback"
@@ -58,13 +58,13 @@ rollback() {
     systemctl reload nginx
   fi
 
-  echo '[RETOUR ARRIÈRE EFFECTUÉ]'
+  echo '[ROLLBACK COMPLETED]'
   exit "$status"
 }
 trap 'rollback "$LINENO" "$BASH_COMMAND"' ERR
 
 echo '============================================================'
-echo '=== BUILD EXPLORATEUR PING STANDARD ==='
+echo '=== STANDARD PING EXPLORER BUILD ==='
 echo '============================================================'
 
 git clone --filter=blob:none --no-checkout "$REPO" "$WORK/source"
@@ -117,7 +117,7 @@ path = Path(sys.argv[1])
 text = path.read_text()
 needle = "location / {"
 if text.count(needle) != 1:
-    raise SystemExit("[ÉCHEC] BLOC location / NON UNIQUE")
+    raise SystemExit("[FAIL] location / BLOCK IS NOT UNIQUE")
 
 proxy = """# XITCOIN_FAUCET_PROXY
     location ^~ /faucet-api/ {
@@ -187,9 +187,9 @@ do
   echo "[OK] HTTP 200: $route"
 done
 
-test -r "$FAUCET_ENV" || fail "CONFIGURATION FAUCET ABSENTE: $FAUCET_ENV"
+test -r "$FAUCET_ENV" || fail "FAUCET CONFIGURATION IS MISSING: $FAUCET_ENV"
 RPC_NODE="$(sed -n 's/^RPC_NODE=//p' "$FAUCET_ENV" | tail -n 1)"
-test -n "$RPC_NODE" || fail "RPC_NODE ABSENT DE LA CONFIGURATION FAUCET"
+test -n "$RPC_NODE" || fail "RPC_NODE IS MISSING FROM THE FAUCET CONFIGURATION"
 RPC_STATUS_URL="${RPC_NODE/tcp:\/\//http://}/status"
 
 RPC_BEFORE="$(curl -fsS --max-time 10 "$RPC_STATUS_URL")"
@@ -206,25 +206,25 @@ for attempt in {1..12}; do
   CATCHING_UP="$(jq -r '.result.sync_info.catching_up' <<<"$RPC_AFTER")"
 
   test "$CHAIN_ID" = 'xitcoin-testnet-v2-1' ||
-    fail "CHAIN ID INATTENDU: $CHAIN_ID"
+    fail "UNEXPECTED CHAIN ID: $CHAIN_ID"
   test "$CATCHING_UP" = 'false' ||
-    fail "NŒUD PUBLIC EN RATTRAPAGE"
+    fail "PUBLIC NODE IS CATCHING UP"
 
   if test "$HEIGHT_BEFORE" -lt "$HEIGHT_AFTER"; then
     break
   fi
 
-  echo "[ATTENTE] PROGRESSION DES BLOCS ($attempt/12): $HEIGHT_AFTER"
+  echo "[WAITING] BLOCK PROGRESS ($attempt/12): $HEIGHT_AFTER"
 done
 
 test "$HEIGHT_BEFORE" -lt "$HEIGHT_AFTER" ||
-  fail "AUCUN NOUVEAU BLOC APRÈS 60 SECONDES: $HEIGHT_BEFORE"
+  fail "NO NEW BLOCK AFTER 60 SECONDS: $HEIGHT_BEFORE"
 
 trap - ERR
 
 echo
 echo '============================================================'
-echo '=== EXPLORATEUR PING STANDARD ACTIVÉ ==='
+echo '=== STANDARD PING EXPLORER ACTIVATED ==='
 echo '============================================================'
 echo "commit=$COMMIT"
 echo "previous_release=$OLD_TARGET"
@@ -234,9 +234,9 @@ echo "height_before=$HEIGHT_BEFORE"
 echo "height_after=$HEIGHT_AFTER"
 echo "catching_up=$CATCHING_UP"
 echo "$HEALTH" | jq .
-echo '[OK] SOURCE GITHUB NEUVE]'
-echo '[OK] BUILD ET TYPAGE RÉUSSIS]'
-echo '[OK] FAUCET À 10 XTC]'
-echo '[OK] PROXY FAUCET MÊME ORIGINE]'
-echo '[OK] AUCUN SERVICE BLOCKCHAIN REDÉMARRÉ]'
-echo '[OK] AUCUNE TRANSACTION]'
+echo '[OK] FRESH GITHUB SOURCE]'
+echo '[OK] BUILD AND TYPE CHECK PASSED]'
+echo '[OK] 10 XTC FAUCET]'
+echo '[OK] SAME-ORIGIN FAUCET PROXY]'
+echo '[OK] NO BLOCKCHAIN SERVICE RESTARTED]'
+echo '[OK] NO TRANSACTION SUBMITTED]'

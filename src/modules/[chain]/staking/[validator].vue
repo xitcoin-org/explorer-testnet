@@ -428,7 +428,7 @@ function mapDelegators(messages: any[]) {
             <p class="text-sm mt-4 mb-3 font-medium">
               {{ $t('staking.liquid_staking') }}
             </p>
-            <p v-if="v.validator_bond_shares === undefined && v.liquid_shares === undefined" class="text-sm mb-3">Non disponible : l’API de cette chaîne ne fournit pas les parts de liquid staking.</p>
+            <p v-if="v.validator_bond_shares === undefined && v.liquid_shares === undefined" class="text-sm mb-3">Unavailable: this chain’s API does not provide liquid staking shares.</p>
             <div class="card-list">
               <div class="flex items-center mb-2">
                 <Icon icon="mdi-lock" class="text-xl mr-1" />
@@ -503,9 +503,9 @@ function mapDelegators(messages: any[]) {
               <div class="ml-3 flex flex-col justify-center">
                 <h4>{{ apr }}</h4>
                 <span class="text-sm"
-                  >Annual Profit — APR estimé (émission)</span
+                  >Estimated annual return — issuance APR</span
                 >
-                <p class="text-xs mt-1 max-w-sm">Estimation à paramètres constants, après taxe communautaire et commission. Hors frais et capitalisation ; aucun rendement garanti.</p>
+                <p class="text-xs mt-1 max-w-sm">Estimate based on unchanged parameters, after community tax and validator commission. Excludes transaction fees and compounding. Returns are not guaranteed.</p>
               </div>
             </div>
 
@@ -567,7 +567,7 @@ function mapDelegators(messages: any[]) {
           class="px-4 mt-1 flex flex-col justify-between pb-4 max-h-72"
           style="height: calc(100% - 50px)"
         >
-          <div tabindex="0" role="region" aria-label="Commissions et récompenses" class="overflow-auto flex-1">
+          <div tabindex="0" role="region" aria-label="Commissions and rewards" class="overflow-auto flex-1">
             <div class="text-sm mb-2">{{ $t('staking.commissions') }}</div>
             <div
               v-for="(i, k) in commission"
@@ -580,7 +580,7 @@ function mapDelegators(messages: any[]) {
               {{ format.formatToken2(i) }}
             </div>
             <p v-if="!commission?.length">
-              {{ commission ? 'Aucune commission' : UNAVAILABLE }}
+              {{ commission ? 'No commission accrued' : UNAVAILABLE }}
             </p>
             <div class="text-sm mb-2 mt-2">
               {{ $t('staking.outstanding') }} {{ $t('account.rewards') }}
@@ -593,7 +593,7 @@ function mapDelegators(messages: any[]) {
               {{ format.formatToken2(i) }}
             </div>
             <p v-if="!rewards?.length">
-              {{ rewards ? 'Aucune récompense' : UNAVAILABLE }}
+              {{ rewards ? 'No rewards accrued' : UNAVAILABLE }}
             </p>
           </div>
           <div class="">
@@ -695,9 +695,9 @@ function mapDelegators(messages: any[]) {
           {{ delegations.pagination?.total || 0 }}
         </span>
       </div>
-      <p class="text-xs mb-2 md:hidden">Faites défiler le tableau horizontalement pour voir toutes les colonnes.</p>
-      <div tabindex="0" role="region" aria-label="Tableau du validateur" class="rounded overflow-auto">
-        <table class="table validatore-table w-full" aria-label="Délégations du validateur">
+      <p class="text-xs mb-2 md:hidden">Scroll the table horizontally to view all columns.</p>
+      <div tabindex="0" role="region" aria-label="Validator table" class="rounded overflow-auto">
+        <table class="table validatore-table w-full" aria-label="Validator delegations">
           <thead><tr>
             <th class="text-left pl-4" style="position: relative; z-index: 2">
               {{ $t('account.delegator') }}
@@ -705,7 +705,7 @@ function mapDelegators(messages: any[]) {
             <th class="text-left pl-4">{{ $t('account.delegation') }}</th>
           </tr></thead>
           <tbody>
-<tr v-if="!delegations.delegation_responses?.length"><td colspan="2" class="p-4">{{ delegations.delegation_responses ? 'Aucune délégation.' : 'Non disponible' }}</td></tr>
+<tr v-if="!delegations.delegation_responses?.length"><td colspan="2" class="p-4">{{ delegations.delegation_responses ? 'No delegations found.' : 'Unavailable' }}</td></tr>
             <tr
               v-for="{
                 balance,
@@ -733,9 +733,9 @@ function mapDelegators(messages: any[]) {
       <div class="text-lg mb-4 font-semibold">
         {{ $t('account.transactions') }}
       </div>
-      <p class="text-xs mb-2 md:hidden">Faites défiler le tableau horizontalement pour voir toutes les colonnes.</p>
-      <div tabindex="0" role="region" aria-label="Tableau du validateur" class="rounded overflow-auto">
-        <table class="table validatore-table w-full" aria-label="Transactions du validateur">
+      <p class="text-xs mb-2 md:hidden">Scroll the table horizontally to view all columns.</p>
+      <div tabindex="0" role="region" aria-label="Validator table" class="rounded overflow-auto">
+        <table class="table validatore-table w-full" aria-label="Validator transactions">
           <thead><tr>
             <th class="text-left pl-4" style="position: relative; z-index: 2">
               {{ $t('account.height') }}
@@ -747,7 +747,7 @@ function mapDelegators(messages: any[]) {
             <th class="text-left pl-4">{{ $t('account.time') }}</th>
           </tr></thead>
           <tbody>
-<tr v-if="!txs.tx_responses?.length"><td colspan="4" class="p-4">{{ txs.tx_responses ? 'Aucune transaction pour ce validateur.' : 'Non disponible' }}</td></tr>
+<tr v-if="!txs.tx_responses?.length"><td colspan="4" class="p-4">{{ txs.tx_responses ? 'No transactions found for this validator.' : 'Unavailable' }}</td></tr>
             <tr v-for="(item, i) in txs.tx_responses">
               <td class="text-sm text-primary">
                 <RouterLink :to="`/${props.chain}/block/${item.height}`">{{
@@ -795,9 +795,9 @@ function mapDelegators(messages: any[]) {
             >{{ $t('account.btn_unbond') }}</button>
         </div>
       </div>
-      <p class="text-xs mb-2 md:hidden">Faites défiler le tableau horizontalement pour voir toutes les colonnes.</p>
-      <div tabindex="0" role="region" aria-label="Tableau du validateur" class="rounded overflow-auto">
-        <table class="table validatore-table w-full" aria-label="Événements de voting power">
+      <p class="text-xs mb-2 md:hidden">Scroll the table horizontally to view all columns.</p>
+      <div tabindex="0" role="region" aria-label="Validator table" class="rounded overflow-auto">
+        <table class="table validatore-table w-full" aria-label="Voting power events">
           <thead><tr>
             <th class="text-left pl-4">{{ $t('account.delegator') }}</th>
             <th class="text-left pl-4">{{ $t('account.amount') }}</th>
@@ -806,7 +806,7 @@ function mapDelegators(messages: any[]) {
             </th>
           </tr></thead>
           <tbody>
-<tr v-if="!events.tx_responses?.length"><td colspan="3" class="p-4">{{ events.tx_responses ? 'Aucun événement de voting power pour ce filtre.' : 'Non disponible' }}</td></tr>
+<tr v-if="!events.tx_responses?.length"><td colspan="3" class="p-4">{{ events.tx_responses ? 'No voting power events found for this filter.' : 'Unavailable' }}</td></tr>
             <tr v-for="(item, i) in events.tx_responses">
               <td class="pr-2 truncate text-primary" style="max-width: 250px">
                 <RouterLink

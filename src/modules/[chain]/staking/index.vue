@@ -290,7 +290,7 @@ loadAvatars();
 
       <div class="bg-base-100 px-4 pt-3 pb-4 rounded shadow">
         <div class="overflow-x-auto">
-          <table aria-label="Validateurs" class="table staking-table w-full">
+          <table aria-label="Validators" class="table staking-table w-full">
             <thead class="bg-base-200">
               <tr>
                 <th scope="col" class="uppercase" style="width: 3rem; position: relative">

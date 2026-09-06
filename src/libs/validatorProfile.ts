@@ -1,6 +1,6 @@
 /** Presentation of on-chain values: missing data must never become zero. */
-export const UNAVAILABLE = 'Non disponible';
-export const NOT_APPLICABLE = 'Non applicable';
+export const UNAVAILABLE = 'Unavailable';
+export const NOT_APPLICABLE = 'Not applicable';
 
 export function textValue(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() ? value.trim() : undefined;
@@ -67,9 +67,9 @@ export function sharesValue(value: unknown): string {
   const decimal = decimalValue(value);
   if (decimal === undefined) return UNAVAILABLE;
   const [whole, fraction = ''] = decimal.split('.');
-  if (fraction.length <= 6) return `${decimal} parts`;
+  if (fraction.length <= 6) return `${decimal} shares`;
   if (whole === '0' && !/[1-9]/.test(fraction.slice(0, 6)))
-    return '< 0.000001 parts';
+    return '< 0.000001 shares';
   const scaled =
     BigInt(whole) * 1000000n +
     BigInt(fraction.slice(0, 6)) +
@@ -78,11 +78,11 @@ export function sharesValue(value: unknown): string {
     .toString()
     .padStart(6, '0')
     .replace(/0+$/, '');
-  return `≈ ${scaled / 1000000n}${tail ? `.${tail}` : ''} parts`;
+  return `≈ ${scaled / 1000000n}${tail ? `.${tail}` : ''} shares`;
 }
 
 export function jailedValue(value: unknown): string {
-  return value === true ? 'Oui' : value === false ? 'Non' : UNAVAILABLE;
+  return value === true ? 'Yes' : value === false ? 'No' : UNAVAILABLE;
 }
 
 export function unbondingValue(

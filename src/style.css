@@ -62,3 +62,8 @@ html.dark .text-primary, html.dark .link-primary { color: #aab1ff; }
 html.dark .text-primary a { color: inherit; }
 html.dark .tab-active, html.dark .bg-primary, html.dark .btn-primary { color: #fff; }
 html.dark .badge-error, html.dark .btn[class*="!bg-info"], html.dark .btn[class*="!bg-yes"] { color: #172033 !important; }
+
+/* The legacy transaction widget must inherit the active theme contrast. */
+ping-tx-dialog > .text-gray-600 {
+  color: hsl(var(--bc));
+}

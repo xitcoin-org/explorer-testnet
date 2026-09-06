@@ -131,7 +131,7 @@ async function update() {
     const res = await response.json();
     const state = res?.result?.round_state;
     const raw = state?.['height/round/step']?.split('/');
-    if (!raw || raw.length !== 3) throw new Error('État de consensus non disponible');
+    if (!raw || raw.length !== 3) throw new Error('Consensus state is unavailable');
     roundState.value = state;
     [height.value, round.value, step.value] = raw;
     const current = state.height_vote_set?.find((item: any) => String(item.round) === round.value);
@@ -141,8 +141,8 @@ async function update() {
     updatetime.value = new Date();
   } catch (err) {
     httpstatus.value = 503;
-    httpStatusText.value = err instanceof Error ? err.message : 'Non disponible';
-    rate.value = 'Non disponible';
+    httpStatusText.value = err instanceof Error ? err.message : 'Unavailable';
+    rate.value = 'Unavailable';
     roundState.value = {};
   } finally { loading = false; }
 }
@@ -160,7 +160,7 @@ async function update() {
             class="input input-bordered input-md w-full"
             v-model="rpc"
           /> -->
-          <select aria-label="RPC du consensus" v-model="rpc" class="select select-bordered w-full flex-1">
+          <select aria-label="Consensus RPC" v-model="rpc" class="select select-bordered w-full flex-1">
             <option v-for="(item, index) in rpcList" :key="index">{{ item?.address }}/consensus_state</option>
           </select>
           <button class="btn btn-primary" @click="onChange">
@@ -176,7 +176,7 @@ async function update() {
         <div class="bg-base-100 px-4 py-3 rounded shadow flex justify-between items-center">
           <div class="text-sm mb-1 flex flex-col min-w-0">
             <h4 class="text-lg font-semibold text-main">{{ rate }}</h4>
-            <span class="text-md">Puissance des prévotes reçus (round courant)</span>
+            <span class="text-md">Received prevote voting power (current round)</span>
           </div>
           <div class="avatar placeholder">
             <div class="bg-error/10 rounded-full w-12 h-12">
@@ -245,7 +245,7 @@ async function update() {
                 <span>
                   <span
                     class="tooltip"
-                    :data-tip="pre" :aria-label="`Prévote : ${pre}`" role="img"
+                    :data-tip="pre" :aria-label="`Prevote: ${pre}`" role="img"
                     :class="{
                       'bg-success': String(pre).toLowerCase() !== 'nil-vote',
                       'bg-base-content/30': String(pre).toLowerCase() === 'nil-vote',
@@ -254,7 +254,7 @@ async function update() {
                   >
                   <span
                     class="tooltip ml-1"
-                    :data-tip="item.precommits[i]" :aria-label="`Précommit : ${item.precommits[i]}`" role="img"
+                    :data-tip="item.precommits[i]" :aria-label="`Precommit: ${item.precommits[i]}`" role="img"
                     :class="{
                       'bg-success': String(item.precommits[i]).toLowerCase() !== 'nil-vote',
                       'bg-base-content/30': String(item.precommits[i]).toLowerCase() === 'nil-vote',
@@ -278,10 +278,10 @@ async function update() {
       <div class="px-4 py-4">
         <ul style="list-style-type: disc" class="pl-8">
           <li>
-            Instantané du nœud RPC : hauteur en cours, round (à partir de 0) et étape interne CometBFT. À l’étape 1 (NewHeight), aucun vote n’est encore reçu : 0 % peut être normal et ne signifie pas une panne.
+            RPC node snapshot: current height, round (starting at 0), and internal CometBFT step. At step 1 (NewHeight), no votes have been received yet: 0% can be normal and does not indicate an outage.
           </li>
           <li>
-            BA est le bitmap des votes reçus (x) ou absents (_). Le rapport reçu/total mesure la puissance de vote, pas des XTC. Les indicateurs affichent prévote puis précommit ; gris signifie non reçu à cet instant. Ce relevé ne mesure ni l’uptime ni la disponibilité globale des validateurs.
+            BA is the bitmap of received (x) or missing (_) votes. The received/total ratio measures voting power, not XTC. The indicators show prevotes followed by precommits; gray means not yet received in this snapshot. This snapshot does not measure validator uptime or overall availability.
           </li>
         </ul>
       </div>

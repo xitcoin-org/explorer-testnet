@@ -35,7 +35,7 @@ function search() {
     </div>
 
     <div v-show="tab === 'recent'" class="bg-base-100 rounded overflow-x-auto">
-      <table class="table w-full table-compact" aria-label="Transactions récentes">
+      <table class="table w-full table-compact" aria-label="Recent transactions">
         <thead class="bg-base-200">
           <tr>
             <th style="position: relative; z-index: 2">{{ $t('account.height') }}</th>
@@ -45,7 +45,7 @@ function search() {
           </tr>
         </thead>
         <tbody>
-<tr v-if="!base.txsInRecents?.length"><td colspan="4" class="p-4">{{ base.txsInRecents ? 'Aucune transaction dans les blocs récents.' : 'Non disponible' }}</td></tr>
+<tr v-if="!base.txsInRecents?.length"><td colspan="4" class="p-4">{{ base.txsInRecents ? 'No transactions found in recent blocks.' : 'Unavailable' }}</td></tr>
           <tr v-for="(item, index) in base.txsInRecents" :index="index" class="hover">
             <td class="text-sm text-primary">
               <RouterLink :to="`/${props.chain}/block/${item.height}`">{{ item.height }}</RouterLink>

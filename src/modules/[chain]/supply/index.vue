@@ -80,8 +80,8 @@ function pageload(p: number) {
 }
 </script>
 <template>
-  <div tabindex="0" role="region" aria-label="Offre des jetons" class="overflow-auto bg-base-100">
-    <table aria-label="Offre des jetons" class="table table-compact">
+  <div tabindex="0" role="region" aria-label="Token supply" class="overflow-auto bg-base-100">
+    <table aria-label="Token supply" class="table table-compact">
       <thead class="bg-base-200">
         <tr>
           <th scope="col">{{ $t('supply_table.logo') }}</th>

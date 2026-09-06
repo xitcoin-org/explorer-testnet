@@ -26,7 +26,7 @@ const addFavor = (e: Event) => {
     class="bg-base-100 hover:bg-active rounded shadow flex items-center px-3 py-3 cursor-pointer"
   >
     <div class="w-8 h-8 rounded-full overflow-hidden">
-      <img :src="conf.logo" />
+      <img :src="conf.logo" alt="" />
     </div>
     <div class="font-semibold ml-4 text-base flex-1 truncate capitalize">
       {{ conf?.prettyName || props.name }}
