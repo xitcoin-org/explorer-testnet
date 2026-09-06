@@ -76,3 +76,10 @@ test('accessible controls keep explicit names and table scroll regions are focus
     const {descriptor}=parse(source);assert.deepEqual(compileTemplate({source:descriptor.template.content,filename:path,id:path}).errors,[]);
   }
 });
+
+test('voting power event amounts retain small nonzero XTC values', async()=>{
+  const {tokenAmount}=await import('../src/libs/validatorProfile.ts');
+  assert.equal(tokenAmount('10000000000000000','axtc',{base:'axtc',symbol:'XTC',exponent:18}),'0.01 XTC');
+  assert.equal(tokenAmount('1','axtc',{base:'axtc',symbol:'XTC',exponent:18}),'0.000000000000000001 XTC');
+  assert.match(fs.readFileSync('src/modules/[chain]/staking/[validator].vue','utf8'), /coins.map\(\(coin\) => tokenAmount\(coin.amount, coin.denom, asset.value\)\)/);
+});

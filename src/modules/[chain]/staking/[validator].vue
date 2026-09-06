@@ -309,7 +309,7 @@ function mapEvents(
   const coinsAsString = attributes.map((x: any) => x.amount).join(',');
   const coins = parseCoins(coinsAsString);
 
-  return coins.map((coin) => format.formatToken(coin)).join(', ');
+  return coins.map((coin) => tokenAmount(coin.amount, coin.denom, asset.value)).join(', ');
 }
 
 function mapDelegators(messages: any[]) {
