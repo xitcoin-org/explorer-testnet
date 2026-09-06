@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { openTransactionDialog } from '@/libs/transactionDialog';
 import { useWalletStore } from './useWalletStore';
 import { useBlockchain } from './useBlockchain';
 import router from '@/router';
@@ -43,7 +44,7 @@ export const useTxDialog = defineStore('txDialogStore', {
       this.endpoint = endpoint;
       this.params = JSON.stringify(param);
     },
-    open(type: string, param: any, callback?: Function) {
+    async open(type: string, param: any, callback?: Function) {
       this.type = type;
       this.sender = this.walletAddress;
       this.endpoint = this.currentEndpoint || '';
@@ -53,6 +54,7 @@ export const useTxDialog = defineStore('txDialogStore', {
       } else {
         CALLBACK = undefined;
       }
+      await openTransactionDialog(type);
     },
     view(tx: {
       detail: {
