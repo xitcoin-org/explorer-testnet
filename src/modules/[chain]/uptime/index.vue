@@ -252,12 +252,12 @@ function changeTab(v: string) {
           <span class="bg-yellow-500">&nbsp;</span>
           {{ $t('uptime.precommitted') }}
           <span class="bg-red-500">&nbsp;</span> {{ $t('uptime.missed') }}
-          <span class="bg-gray-300">&nbsp;</span> Non observé
+          <span class="bg-gray-300">&nbsp;</span> Not observed
         </div>
       </div>
 
       <div :class="tab === '3' ? '' : 'hidden'" class="overflow-x-auto">
-        <table aria-label="Uptime des validateurs" class="table table-compact w-full mt-5">
+        <table aria-label="Validator uptime" class="table table-compact w-full mt-5">
           <thead class="capitalize bg-base-200">
             <tr>
               <th scope="col">{{ $t('account.validator') }}</th>

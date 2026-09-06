@@ -40,10 +40,10 @@ test('missing and malformed amounts never become zero', () => {
 });
 test('shares retain their accounting unit and bounded precision', () => {
   assert.equal(sharesValue(undefined), NA);
-  assert.equal(sharesValue('0.000000000000000000'), '0 parts');
-  assert.equal(sharesValue('123.123456789'), '≈ 123.123457 parts');
-  assert.equal(sharesValue('0.000000000000001'), '< 0.000001 parts');
-  assert.equal(sharesValue('9.999999999'), '≈ 10 parts');
+  assert.equal(sharesValue('0.000000000000000000'), '0 shares');
+  assert.equal(sharesValue('123.123456789'), '≈ 123.123457 shares');
+  assert.equal(sharesValue('0.000000000000001'), '< 0.000001 shares');
+  assert.equal(sharesValue('9.999999999'), '≈ 10 shares');
 });
 test('bonded and unbonded statuses make unbonding inapplicable', () => {
   for (const status of ['BOND_STATUS_BONDED', 'BOND_STATUS_UNBONDED']) {
@@ -64,8 +64,8 @@ test('active unbonding displays actual height and absolute UTC time', () => {
   assert.equal(unbondingValue(undefined, '0', 'height'), NA);
 });
 test('jailed is an explicit boolean, not truthiness', () => {
-  assert.equal(jailedValue(true), 'Oui');
-  assert.equal(jailedValue(false), 'Non');
+  assert.equal(jailedValue(true), 'Yes');
+  assert.equal(jailedValue(false), 'No');
   for (const value of [undefined, null, 'false', 0])
     assert.equal(jailedValue(value), NA);
 });

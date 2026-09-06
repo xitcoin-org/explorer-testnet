@@ -127,7 +127,7 @@ const amount = computed({
 
 <template>
   <div>
-    <p v-if="blockchain.chainName === 'xitcoin-testnet'" class="bg-base-100 rounded p-4 mb-4">Prix de marché : Non disponible. XTC est ici un jeton de testnet, sans cotation vérifiée.</p>
+    <p v-if="blockchain.chainName === 'xitcoin-testnet'" class="bg-base-100 rounded p-4 mb-4">Market price: Unavailable. XTC is a testnet token on this network and has no verified market listing.</p>
     <div v-if="coinInfo && coinInfo.name" class="bg-base-100 rounded shadow">
       <div class="grid grid-cols-2 md:grid-cols-3 p-4">
         <div class="col-span-2 md:col-span-1">
@@ -451,7 +451,7 @@ const amount = computed({
         </table>
       </div>
 
-      <div class="grid grid-cols-3 gap-4 px-4 pb-6 mt-4">
+      <div class="grid gap-4 px-4 pb-6 mt-4" :class="blockchain.chainName === 'xitcoin-testnet' ? 'grid-cols-2' : 'grid-cols-3'">
         <label v-if="blockchain.chainName !== 'xitcoin-testnet'" for="PingTokenConvert" class="btn btn-primary text-white">{{ $t('index.btn_swap') }}</label>
         <button type="button" class="btn !bg-yes !border-yes text-white" @click="dialog.open('send', {}, updateState)">{{
           $t('account.btn_send')

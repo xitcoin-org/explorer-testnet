@@ -248,7 +248,7 @@ const currencySign = computed(() => {
         <div>
           <div class="flex items-center text-sm">
             Currency:
-            <select v-model="currency" @change="loadPrice" class="ml-1 uppercase">
+            <select v-model="currency" @change="loadPrice" aria-label="Display currency" class="ml-1 uppercase bg-base-100 text-base-content">
               <option>usd</option>
               <option>cny</option>
               <option>eur</option>
@@ -329,8 +329,8 @@ const currencySign = computed(() => {
       <div class="p-4 text-center" v-if="tokenList.length === 0">No Data</div>
     </div>
     <div class="text-center my-5 bg-base-200">
-      <RouterLink to="./accounts" class="btn btn-link"
-        >Add More Asset</RouterLink
+      <RouterLink to="./accounts" class="btn btn-link !text-base-content"
+        >Add more assets</RouterLink
       >
     </div>
   </div>

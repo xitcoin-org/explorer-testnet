@@ -14,8 +14,8 @@ test('consensus uses exact voting power, current snapshot zeros and invalid data
   assert.equal(prevoteParticipation('BA{4:xxx_} 15000000/20000000 = 0.75'), '75 %');
   assert.equal(prevoteParticipation('BA{3:xx_} 2/3 = 0.67'), '66.67 %');
   assert.equal(prevoteParticipation('BA{2:x_} 1/20000000 = 0.00'), '< 0.01 %');
-  for (const v of [null, '', 'BA{1:_} 0/0 = 0.00', 'BA{1:x} 2/1 = 2.00']) assert.equal(prevoteParticipation(v), 'Non disponible');
-  assert.match(consensusStep('1'), /NewHeight/);assert.equal(consensusStep('99'), 'Non disponible');
+  for (const v of [null, '', 'BA{1:_} 0/0 = 0.00', 'BA{1:x} 2/1 = 2.00']) assert.equal(prevoteParticipation(v), 'Unavailable');
+  assert.match(consensusStep('1'), /NewHeight/);assert.equal(consensusStep('99'), 'Unavailable');
 });
 test('wallet public name differs from route; unquoted testnet price is unavailable', () => {
   assert.equal(walletPublicName({chainName:'xitcoin-testnet',prettyName:'Xitcoin Public Testnet'}),'Xitcoin Public Testnet');
@@ -38,14 +38,14 @@ test('empty table rows render explicit states with the correct column span',asyn
       const state={[parts[0]]:{[parts[1]]:value}};
       const {code}=compile(`<table><tbody>${row[0]}</tbody></table>`,{mode:'function'});
       const html=await renderToString(createSSRApp({data:()=>state,render:new Function('Vue',code)(Vue)}));
-      assert.match(html,new RegExp(`colspan="${row[2]}"`));assert.match(html,value?/Aucun/:/Non disponible/);
+      assert.match(html,new RegExp(`colspan="${row[2]}"`));assert.match(html,value?/No /:/Unavailable/);
     }}
   }
 });
 test('changed Vue templates compile and validator table headings remain separate cells',()=>{
   for(const file of ['src/modules/[chain]/consensus/index.vue','src/modules/[chain]/staking/[validator].vue','src/modules/[chain]/staking/index.vue','src/modules/wallet/suggest.vue','src/components/ProposalListItem.vue']){
     const source=fs.readFileSync(file,'utf8');const {descriptor}=parse(source);const result=compileTemplate({source:descriptor.template.content,filename:file,id:file});assert.deepEqual(result.errors,[]);
-    if(file.includes('[validator]')){assert.equal((source.match(/<thead><tr>/g)||[]).length,3);assert.match(source,/aucun rendement garanti/);assert.match(source,/API de cette chaîne ne fournit pas/);}
+    if(file.includes('[validator]')){assert.equal((source.match(/<thead><tr>/g)||[]).length,3);assert.match(source,/Returns are not guaranteed/);assert.match(source,/API does not provide/);}
   }
   const index=fs.readFileSync('index.html','utf8');assert.ok(!index.includes('gtag('));
   assert.ok(!index.match(/script-src[^\"]*cloudflareinsights/));
@@ -56,8 +56,8 @@ test('economic parameters preserve units and exact atomic conversion, including 
   const assets=[{base:'axtc',symbol:'XTC',exponent:18}];
   assert.equal(parameterValue([{amount:'10000000',denom:'axtc'}],'min_deposit',assets),'0.00000000001 XTC');
   assert.equal(parameterValue('0.000000000000000000','inflation'),'0 %');
-  assert.equal(parameterValue(undefined,'inflation'),'Non disponible');
-  assert.equal(parameterValue('bad','inflation'),'Non disponible');
+  assert.equal(parameterValue(undefined,'inflation'),'Unavailable');
+  assert.equal(parameterValue('bad','inflation'),'Unavailable');
   assert.equal(parameterValue('0.02','community_tax'),'2 %');
   assert.equal(parameterValue('5250000000000000000000000000','max_supply',assets),'5250000000 XTC');
   assert.equal(parameterValue('0.25','arbitrary'),'0.25');
@@ -88,7 +88,7 @@ test('validator tables keep readable columns rather than inherit character wrapp
   const source=fs.readFileSync('src/modules/[chain]/staking/[validator].vue','utf8');
   assert.match(source,/\.validatore-table\.table \{ min-width: 640px; \}/);
   assert.match(source,/\.validatore-table\.table :where\(th, td\) \{\s*overflow-wrap: normal;\s*word-break: normal;\s*white-space: nowrap;/);
-  assert.equal((source.match(/Faites défiler le tableau horizontalement/g)||[]).length,3);
+  assert.equal((source.match(/Scroll the table horizontally/g)||[]).length,3);
 });
 
 test('registry display denomination casing never changes the atomic exponent',async()=>{
@@ -98,7 +98,7 @@ test('registry display denomination casing never changes the atomic exponent',as
   assert.equal(parameterValue('5250000000000000000000000000','max_supply',assets),'5250000000 XTC');
   assert.equal(parameterValue([{amount:'10000000',denom:'axtc'}],'min_deposit',assets),'0.00000000001 XTC');
   assert.deepEqual(parameterAssets([{base:'axtc',symbol:'XTC',display:'unknown',denom_units:[{denom:'axtc',exponent:0}]}]),[]);
-  assert.equal(parameterValue('5250000000000000000000000000','max_supply',[]),'Non disponible');
+  assert.equal(parameterValue('5250000000000000000000000000','max_supply',[]),'Unavailable');
 });
 
 test('wallet suggestions do not substitute a fictitious CoinGecko identifier',()=>{

@@ -36,7 +36,7 @@ done
 status="$(curl -fsS --max-time 20 "$COSMOS_RPC/status")"
 chain_id="$(jq -er '.result.node_info.network' <<<"$status")"
 height="$(jq -er '.result.sync_info.latest_block_height | tonumber' <<<"$status")"
-catching_up="$(jq -er '.result.sync_info.catching_up' <<<"$status")"
+catching_up="$(jq -r '.result.sync_info.catching_up' <<<"$status")"
 test "$chain_id" = "$EXPECTED_COSMOS_CHAIN_ID" ||
   fail "unexpected Cosmos chain ID: $chain_id"
 test "$height" -gt 0 || fail "invalid Cosmos height"
