@@ -151,6 +151,14 @@ export function parameterValue(value: unknown, key: string, assets: {base: strin
     const n = Number(decimal) * 100;
     return n > 0 && n < 0.0001 ? '< 0.0001 %' : `${Number(n.toFixed(4))} %`;
   }
-  if (key === 'max_supply' && assets.length === 1) return tokenAmount(value, assets[0].base, assets[0]);
+  if (key === 'max_supply') return assets.length === 1 ? tokenAmount(value, assets[0].base, assets[0]) : UNAVAILABLE;
   return typeof value === 'string' || typeof value === 'number' ? String(value) : UNAVAILABLE;
+}
+
+/** Registry display denoms may use symbol casing while denomination units are lowercase. */
+export function parameterAssets(assets: {base: string; symbol: string; display: string; denom_units: {denom: string; exponent: number}[]}[]) {
+  return assets.flatMap(a => {
+    const unit = a.denom_units.find(u => u.denom.toLowerCase() === a.display.toLowerCase());
+    return unit ? [{base: a.base, symbol: a.symbol, exponent: unit.exponent}] : [];
+  });
 }

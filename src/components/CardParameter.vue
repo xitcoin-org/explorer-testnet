@@ -3,7 +3,7 @@ import type { PropType } from 'vue';
 import { useBlockchain, useFormatter } from '@/stores';
 import { formatSeconds } from '@/libs/utils';
 import Loading from '@/components/Loading.vue';
-import { parameterValue } from '@/libs/validatorProfile';
+import { parameterValue, parameterAssets } from '@/libs/validatorProfile';
 const props = defineProps({
   cardItem: {
     type: Object as PropType<{ title: string; items: Array<any> }>,
@@ -14,7 +14,7 @@ const props = defineProps({
 const formatter = useFormatter();
 function calculateValue(value: unknown, key: string) {
   if (typeof value === 'string' && /^\d+s$/.test(value)) return formatSeconds(value);
-  const assets = (useBlockchain().current?.assets || []).map(a => ({base: a.base, symbol: a.symbol, exponent: a.denom_units.find(u => u.denom === a.display)?.exponent ?? 0}));
+  const assets = parameterAssets(useBlockchain().current?.assets || []);
   return parameterValue(value, key, assets);
 }
 
