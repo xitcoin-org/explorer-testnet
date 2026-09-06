@@ -27,16 +27,15 @@ function search() {
 <template>
   <div>
     <div class="tabs tabs-boxed bg-transparent mb-4">
-      <a class="tab text-gray-400 uppercase" :class="{ 'tab-active': tab === 'recent' }" @click="tab = 'recent'">{{
+      <button type="button" class="tab text-gray-400 uppercase" :class="{ 'tab-active': tab === 'recent' }" @click="tab = 'recent'">{{
         $t('block.recent')
-      }}</a>
-      <a class="tab text-gray-400 uppercase" :class="{ 'tab-active': tab === 'search' }" @click="tab = 'search'"
-        >Search</a
-      >
+      }}</button>
+      <button type="button" class="tab text-gray-400 uppercase" :class="{ 'tab-active': tab === 'search' }" @click="tab = 'search'"
+        >Search</button>
     </div>
 
     <div v-show="tab === 'recent'" class="bg-base-100 rounded overflow-x-auto">
-      <table class="table w-full table-compact">
+      <table class="table w-full table-compact" aria-label="Transactions récentes">
         <thead class="bg-base-200">
           <tr>
             <th style="position: relative; z-index: 2">{{ $t('account.height') }}</th>
@@ -46,6 +45,7 @@ function search() {
           </tr>
         </thead>
         <tbody>
+<tr v-if="!base.txsInRecents?.length"><td colspan="4" class="p-4">{{ base.txsInRecents ? 'Aucune transaction dans les blocs récents.' : 'Non disponible' }}</td></tr>
           <tr v-for="(item, index) in base.txsInRecents" :index="index" class="hover">
             <td class="text-sm text-primary">
               <RouterLink :to="`/${props.chain}/block/${item.height}`">{{ item.height }}</RouterLink>
@@ -88,7 +88,7 @@ function search() {
             v-model="hash"
             type="text"
             class="input input-bordered"
-            placeholder="Search by Tx Hash"
+            aria-label="Search by transaction hash" placeholder="Search by Tx Hash"
             @blur="search"
           />
         </div>

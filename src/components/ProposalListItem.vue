@@ -51,7 +51,8 @@ function metaItem(metadata: string | undefined): { title: string; summary: strin
 </script>
 <template>
   <div class="bg-white dark:bg-base-200 rounded text-sm">
-    <table class="table-compact w-full table-fixed hidden lg:!table">
+    <p v-if="!proposals?.proposals?.length" class="p-4" role="status">{{ proposals?.proposals ? 'Aucune proposition pour ce filtre.' : 'Données des propositions non disponibles.' }}</p>
+    <table aria-label="Propositions de gouvernance" class="table-compact w-full table-fixed hidden lg:!table">
       <tbody>
         <tr v-for="(item, index) in proposals?.proposals" :key="index">
           <td class="px-4 w-20">

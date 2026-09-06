@@ -29,7 +29,7 @@ body {
 html.dark,
 html[data-theme='dark'] {
   --text-main: #f7f7f7;
-  --text-secondary: #6f6e84;
+  --text-secondary: #b7bed0;
   --bg-active: #242b40;
 }
 
@@ -52,3 +52,13 @@ html[data-theme='dark'] {
   opacity: 0;
   transform: translateY(-calc(15%));
 }
+
+:focus-visible { outline: 3px solid #f59e0b !important; outline-offset: 3px; }
+.table th { white-space: normal; }
+html.dark .table th, html[data-theme="dark"] .table th { color: #c3cadd; opacity: 1; }
+
+html.dark [class*="text-base-content/"], html[data-theme="dark"] [class*="text-base-content/"] { color: #b7c0d4; }
+html.dark .text-primary, html.dark .link-primary { color: #aab1ff; }
+html.dark .text-primary a { color: inherit; }
+html.dark .tab-active, html.dark .bg-primary, html.dark .btn-primary { color: #fff; }
+html.dark .badge-error, html.dark .btn[class*="!bg-info"], html.dark .btn[class*="!bg-yes"] { color: #172033 !important; }

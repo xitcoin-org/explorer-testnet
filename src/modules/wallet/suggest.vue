@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { walletPublicName } from '@/libs/explorerPresentation';
 import { computed, onMounted, ref } from 'vue';
 import {
   useDashboard,
@@ -93,7 +94,7 @@ async function initParamsForKeplr() {
   conf.value = JSON.stringify(
     {
       chainId: chainid,
-      chainName: chain.chainName,
+      chainName: walletPublicName(chain),
       rpc: chain.endpoints?.rpc?.at(0)?.address,
       rest: chain.endpoints?.rest?.at(0)?.address,
       bip44: {
@@ -214,7 +215,7 @@ async function suggest() {
         <span class="label-text mb-2">Chain</span>
         <select v-model="selected" class="select select-bordered w-full" @change="onchange">
           <option v-for="c in chains" :key="c.chainName" :value="c">
-            {{ c.chainName }}
+            {{ c.prettyName || c.chainName }}
           </option>
         </select>
       </label>
@@ -231,8 +232,9 @@ async function suggest() {
       </label>
     </div>
 
+    <p class="mt-4 text-left" v-if="selected.chainName === 'xitcoin-testnet'">Cosmos chain ID: <strong>xitcoin-testnet-v2-1</strong>. EVM chain ID: <strong>101089</strong>. Explorer route: <code>xitcoin-testnet</code>.</p>
     <div class="text-main mt-5">
-      <textarea v-model="conf" class="textarea textarea-bordered w-full font-mono text-sm" rows="15" readonly></textarea>
+      <textarea aria-label="Wallet network parameters" v-model="conf" class="textarea textarea-bordered w-full font-mono text-sm" rows="15" readonly></textarea>
     </div>
 
     <div v-if="error" class="alert alert-error mt-4 text-left" role="alert">
@@ -245,7 +247,7 @@ async function suggest() {
         :disabled="!selected.chainName || !conf"
         @click="suggest"
       >
-        <span v-if="wallet === 'keplr'">Suggest {{ selected.chainName }} to Keplr</span>
+        <span v-if="wallet === 'keplr'">Suggest {{ selected.prettyName || selected.chainName }} to Keplr</span>
         <span v-else>Add Xitcoin Public Testnet to Metamask</span>
       </button>
 

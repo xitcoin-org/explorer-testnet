@@ -126,9 +126,9 @@ onMounted(() => {
     </div>
 
     <div class="my-5 rounded bg-base-100 px-4 pt-3 pb-4 shadow">
-      <h2 class="card-title">{{ $t('xitcoin_faucet.address') }}</h2>
+      <h2 id="faucet-address-label" class="card-title">{{ $t('xitcoin_faucet.address') }}</h2>
       <input
-        id="faucet-address"
+        id="faucet-address" aria-labelledby="faucet-address-label"
         v-model.trim="address"
         class="mt-4 mb-2 w-full rounded-md border border-gray-300 bg-base-100 p-2 text-base-content"
         :class="{ 'input-error': !validAddress }"
@@ -142,7 +142,7 @@ onMounted(() => {
       <button
         class="btn btn-primary mt-2 w-full text-white"
         :class="{ 'cursor-not-allowed opacity-60': !canClaim }"
-        :aria-disabled="!canClaim"
+        :disabled="!canClaim" :aria-disabled="!canClaim"
         :tabindex="canClaim ? 0 : -1"
         @click="claim"
       >

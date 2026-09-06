@@ -181,14 +181,15 @@ export const useDashboard = defineStore('dashboard', {
           });
       });
 
-      const currencies = ['usd, cny']; // usd,cny,eur,jpy,krw,sgd,hkd
+      if (!coinIds.length) { this.prices = {}; return; }
+      const currencies = ['usd', 'cny']; // usd,cny,eur,jpy,krw,sgd,hkd
       get(
         `${coingeckoUrl}/api/v3/simple/price?include_24hr_change=true&vs_currencies=${currencies.join(
           ','
         )}&ids=${coinIds.join(',')}`
       ).then((x) => {
         this.prices = x;
-      });
+      }).catch(() => { this.prices = {}; });
     },
     async loadingFromRegistry() {
       if (this.status === LoadingStatus.Empty) {

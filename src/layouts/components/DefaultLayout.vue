@@ -91,17 +91,17 @@ dayjs();
           <img class="h-10 w-10 rounded-md" src="/assets/xitcoin-logo.png" alt="Xitcoin" />
           <h1 class="ml-3 flex-1 text-2xl font-semibold dark:text-white">Xitcoin Explorer</h1>
         </RouterLink>
-        <div
+        <button type="button" aria-label="Close navigation"
           class="pr-4 cursor-pointer xl:!hidden"
           @click="sidebarShow = false"
         >
           <Icon icon="mdi-close" class="text-2xl" />
-        </div>
+        </button>
       </div>
       <div v-for="(item, index) of blockchain.computedChainMenu" :key="index" class="px-2">
         <div
           v-if="isNavGroup(item)"
-          :tabindex="index"
+          tabindex="0"
           class="collapse"
           :class="{
             'collapse-arrow': index > 0 && item?.children?.length > 0,
@@ -109,7 +109,7 @@ dayjs();
             'collapse-close': index === 0 && !sidebarOpen,
           }"
         >
-          <input v-if="index > 0" type="checkbox" class="cursor-pointer !h-10 block" @click="changeOpen(index)" />
+          <input v-if="index > 0" aria-label="Expand navigation group" type="checkbox" class="cursor-pointer !h-10 block" @click="changeOpen(index)" />
           <div
             class="collapse-title !py-0 px-4 flex items-center cursor-pointer hover:bg-active"
           >
@@ -122,7 +122,7 @@ dayjs();
                 'text-blue-500': item?.title !== 'Favorite',
               }"
             />
-            <img v-if="item?.icon?.image" :src="item?.icon?.image" class="w-6 h-6 rounded-full mr-3" />
+            <img alt="" v-if="item?.icon?.image" :src="item?.icon?.image" class="w-6 h-6 rounded-full mr-3" />
             <div class="text-base capitalize flex-1 text-base-content whitespace-nowrap">
               {{ item?.title }}
             </div>
@@ -153,7 +153,7 @@ dayjs();
                     'text-white': $route.path === el?.to?.path && item?.title !== 'Favorite',
                   }"
                 />
-                <img
+                <img alt=""
                   v-if="el?.icon?.image"
                   :src="el?.icon?.image"
                   class="w-6 h-6 rounded-full mr-3 ml-4"
@@ -202,7 +202,7 @@ dayjs();
               'text-blue-500': item?.title !== 'Favorite',
             }"
           />
-          <img
+          <img alt=""
             v-if="item?.icon?.image"
             :src="item?.icon?.image"
             class="w-6 h-6 rounded-full mr-3 border border-blue-100"
@@ -276,12 +276,12 @@ dayjs();
       <div
         class="flex items-center py-3 bg-base-100 mb-4 rounded px-4 sticky top-0 z-10"
       >
-        <div
+        <button type="button" aria-label="Open navigation"
           class="text-2xl pr-3 cursor-pointer xl:!hidden"
           @click="sidebarShow = true"
         >
           <Icon icon="mdi-menu" />
-        </div>
+        </button>
 
         <ChainProfile />
 

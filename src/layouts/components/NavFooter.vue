@@ -3,7 +3,7 @@
   <footer class="flex items-center h-12 mt-5 text-sm bg-base-200 py-2 z-10 w-full">
     <div class="flex flex-1">
       &copy;&nbsp;
-      {{ new Date().getFullYear() }}&nbsp; Made With&nbsp; <img src="../../assets/images/heart.svg" />&nbsp; By&nbsp;
+      {{ new Date().getFullYear() }}&nbsp; Made With&nbsp; <img alt="love" src="../../assets/images/heart.svg" />&nbsp; By&nbsp;
       <a class="link link-primary no-underline" href="https://ping.pub" target="_blank" rel="noopener noreferrer"
         >Ping.pub</a
       >

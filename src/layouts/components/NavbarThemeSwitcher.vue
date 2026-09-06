@@ -38,7 +38,7 @@ onMounted(() => {
 
 <template>
   <div class="tooltip tooltip-bottom delay-1000">
-    <button class="btn btn-ghost btn-circle btn-sm mx-1" @click="changeMode()">
+    <button aria-label="Change color theme" class="btn btn-ghost btn-circle btn-sm mx-1" @click="changeMode()">
       <Icon :icon="themeMap?.[theme]" class="text-2xl text-base-content/70" />
     </button>
   </div>

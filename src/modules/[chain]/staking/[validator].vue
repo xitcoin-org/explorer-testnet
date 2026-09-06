@@ -127,6 +127,7 @@ const contact = computed(() =>
 );
 
 const logo = (identity?: string) => {
+  if (blockchain.chainName === 'xitcoin-testnet') return '/assets/validator-fallback.svg';
   if (!identity) return '';
   const url = avatars.value[identity] || '';
   return url.startsWith('http')
@@ -330,12 +331,12 @@ function mapDelegators(messages: any[]) {
               <div class="absolute h-24 w-24 rounded-full opacity-10"></div>
               <div class="h-24 w-24 rounded-full overflow-hidden">
                 <img
-                  v-if="identity && avatars[identity] !== 'undefined'"
-                  v-lazy="logo(identity)"
+                  v-if="logo(identity)"
+                  :src="logo(identity)" alt="Validator avatar"
                   class="h-24 w-24 rounded-full object-cover"
                   @error="
                     (e) => {
-                      loadAvatar(identity);
+                      (e.target as HTMLImageElement).src = '/assets/validator-fallback.svg';
                     }
                   "
                 />
@@ -358,16 +359,15 @@ function mapDelegators(messages: any[]) {
               <div v-if="v.description?.identity" class="text-sm mb-4">
                 {{ v.description.identity }}
               </div>
-              <label
-                for="delegate"
+              <button type="button"
+
                 class="btn btn-primary btn-sm w-full"
                 @click="
                   dialog.open('delegate', {
                     validator_address: v.operator_address,
                   })
                 "
-                >{{ $t('account.btn_delegate') }}</label
-              >
+                >{{ $t('account.btn_delegate') }}</button>
             </div>
           </div>
           <div class="m-4 text-sm">
@@ -428,6 +428,7 @@ function mapDelegators(messages: any[]) {
             <p class="text-sm mt-4 mb-3 font-medium">
               {{ $t('staking.liquid_staking') }}
             </p>
+            <p v-if="v.validator_bond_shares === undefined && v.liquid_shares === undefined" class="text-sm mb-3">Non disponible : l’API de cette chaîne ne fournit pas les parts de liquid staking.</p>
             <div class="card-list">
               <div class="flex items-center mb-2">
                 <Icon icon="mdi-lock" class="text-xl mr-1" />
@@ -504,6 +505,7 @@ function mapDelegators(messages: any[]) {
                 <span class="text-sm"
                   >Annual Profit — APR estimé (émission)</span
                 >
+                <p class="text-xs mt-1 max-w-sm">Estimation à paramètres constants, après taxe communautaire et commission. Hors frais et capitalisation ; aucun rendement garanti.</p>
               </div>
             </div>
 
@@ -565,7 +567,7 @@ function mapDelegators(messages: any[]) {
           class="px-4 mt-1 flex flex-col justify-between pb-4 max-h-72"
           style="height: calc(100% - 50px)"
         >
-          <div class="overflow-auto flex-1">
+          <div tabindex="0" role="region" aria-label="Commissions et récompenses" class="overflow-auto flex-1">
             <div class="text-sm mb-2">{{ $t('staking.commissions') }}</div>
             <div
               v-for="(i, k) in commission"
@@ -595,16 +597,14 @@ function mapDelegators(messages: any[]) {
             </p>
           </div>
           <div class="">
-            <label
-              for="withdraw_commission"
+            <button type="button"
               class="btn btn-primary w-full"
               @click="
                 dialog.open('withdraw_commission', {
                   validator_address: v.operator_address,
                 })
               "
-              >{{ $t('account.btn_withdraw') }}</label
-            >
+              >{{ $t('account.btn_withdraw') }}</button>
           </div>
         </div>
       </div>
@@ -695,15 +695,16 @@ function mapDelegators(messages: any[]) {
           {{ delegations.pagination?.total || 0 }}
         </span>
       </div>
-      <div class="rounded overflow-auto">
-        <table class="table validatore-table w-full">
-          <thead>
+      <div tabindex="0" role="region" aria-label="Tableau du validateur" class="rounded overflow-auto">
+        <table class="table validatore-table w-full" aria-label="Délégations du validateur">
+          <thead><tr>
             <th class="text-left pl-4" style="position: relative; z-index: 2">
               {{ $t('account.delegator') }}
             </th>
             <th class="text-left pl-4">{{ $t('account.delegation') }}</th>
-          </thead>
+          </tr></thead>
           <tbody>
+<tr v-if="!delegations.delegation_responses?.length"><td colspan="2" class="p-4">{{ delegations.delegation_responses ? 'Aucune délégation.' : 'Non disponible' }}</td></tr>
             <tr
               v-for="{
                 balance,
@@ -731,9 +732,9 @@ function mapDelegators(messages: any[]) {
       <div class="text-lg mb-4 font-semibold">
         {{ $t('account.transactions') }}
       </div>
-      <div class="rounded overflow-auto">
-        <table class="table validatore-table w-full">
-          <thead>
+      <div tabindex="0" role="region" aria-label="Tableau du validateur" class="rounded overflow-auto">
+        <table class="table validatore-table w-full" aria-label="Transactions du validateur">
+          <thead><tr>
             <th class="text-left pl-4" style="position: relative; z-index: 2">
               {{ $t('account.height') }}
             </th>
@@ -742,8 +743,9 @@ function mapDelegators(messages: any[]) {
               {{ $t('account.messages') }}
             </th>
             <th class="text-left pl-4">{{ $t('account.time') }}</th>
-          </thead>
+          </tr></thead>
           <tbody>
+<tr v-if="!txs.tx_responses?.length"><td colspan="4" class="p-4">{{ txs.tx_responses ? 'Aucune transaction pour ce validateur.' : 'Non disponible' }}</td></tr>
             <tr v-for="(item, i) in txs.tx_responses">
               <td class="text-sm text-primary">
                 <RouterLink :to="`/${props.chain}/block/${item.height}`">{{
@@ -779,30 +781,29 @@ function mapDelegators(messages: any[]) {
       <div class="text-lg mb-4 font-semibold">
         <div class="tabs tabs-boxed bg-transparent">
           <span class="mr-10">Voting Power Events: </span>
-          <a
+          <button type="button"
             class="tab text-base-content/60"
             :class="{ 'tab-active': selectedEventType === EventType.Delegate }"
             @click="loadPowerEvents(1, EventType.Delegate)"
-            >{{ $t('account.btn_delegate') }}</a
-          >
-          <a
+            >{{ $t('account.btn_delegate') }}</button>
+          <button type="button"
             class="tab text-base-content/60"
             :class="{ 'tab-active': selectedEventType === EventType.Unbond }"
             @click="loadPowerEvents(1, EventType.Unbond)"
-            >{{ $t('account.btn_unbond') }}</a
-          >
+            >{{ $t('account.btn_unbond') }}</button>
         </div>
       </div>
-      <div class="rounded overflow-auto">
-        <table class="table validatore-table w-full">
-          <thead>
+      <div tabindex="0" role="region" aria-label="Tableau du validateur" class="rounded overflow-auto">
+        <table class="table validatore-table w-full" aria-label="Événements de voting power">
+          <thead><tr>
             <th class="text-left pl-4">{{ $t('account.delegator') }}</th>
             <th class="text-left pl-4">{{ $t('account.amount') }}</th>
             <th class="text-left pl-4">
               {{ $t('account.height') }} / {{ $t('account.time') }}
             </th>
-          </thead>
+          </tr></thead>
           <tbody>
+<tr v-if="!events.tx_responses?.length"><td colspan="3" class="p-4">{{ events.tx_responses ? 'Aucun événement de voting power pour ce filtre.' : 'Non disponible' }}</td></tr>
             <tr v-for="(item, i) in events.tx_responses">
               <td class="pr-2 truncate text-primary" style="max-width: 250px">
                 <RouterLink

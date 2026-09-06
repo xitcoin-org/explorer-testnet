@@ -202,22 +202,20 @@ function changeTab(v: string) {
 <template>
   <div>
     <div class="tabs tabs-boxed bg-transparent mb-4">
-      <a class="tab text-base-content/60 capitalize" :class="{ 'tab-active': tab === '3' }" @click="changeTab('3')">{{
+      <button type="button" class="tab text-base-content/60 capitalize" :class="{ 'tab-active': tab === '3' }" @click="changeTab('3')">{{
         $t('uptime.overall')
-      }}</a>
-      <a class="tab text-base-content/60 capitalize" :class="{ 'tab-active': tab === '2' }" @click="changeTab('2')">{{
+      }}</button>
+      <button type="button" class="tab text-base-content/60 capitalize" :class="{ 'tab-active': tab === '2' }" @click="changeTab('2')">{{
         $t('module.blocks')
-      }}</a>
-      <RouterLink :to="`/${chain}/uptime/customize`">
-        <a class="tab text-base-content/60 capitalize">{{ $t('uptime.customize') }}</a>
-      </RouterLink>
+      }}</button>
+      <RouterLink class="tab text-base-content/60 capitalize" :to="`/${chain}/uptime/customize`">{{ $t('uptime.customize') }}</RouterLink>
     </div>
     <div class="bg-base-100 px-5 pt-5">
       <div class="flex items-center gap-x-4">
         <input
           type="text"
           v-model="keyword"
-          placeholder="Keywords to filter validators"
+          aria-label="Filter validators" placeholder="Keywords to filter validators"
           class="input input-sm w-full flex-1 border border-gray-200 dark:border-gray-600"
         />
       </div>
@@ -229,44 +227,45 @@ function changeTab(v: string) {
             <div class="flex justify-between py-0 w-[248px]">
               <label class="truncate text-sm">
                 <span class="ml-1 text-black dark:text-white"
-                  >{{ i + 1 }}.{{ unit.moniker }}</span
+                  >{{ i + 1 }}. {{ unit.moniker }}</span
                 >
               </label>
               <div
                 v-if="Number(unit?.missed_blocks_counter || 0) > 10"
-                class="badge badge-sm bg-transparent border-0 text-red-500 font-bold"
+                class="badge badge-sm bg-transparent border-0 text-red-700 dark:text-red-300 font-bold"
               >
-                {{ unit?.missed_blocks_counter }}
+                {{ unit?.missed_blocks_counter }} missed
               </div>
               <div
                 v-else
-                class="badge badge-sm bg-transparent text-green-600 border-0 font-bold"
+                class="badge badge-sm bg-transparent text-green-700 dark:text-green-300 border-0 font-bold"
               >
-                {{ unit?.missed_blocks_counter }}
+                {{ unit?.missed_blocks_counter }} missed
               </div>
             </div>
             <UptimeBar :blocks="unit.blocks" />
           </div>
         </div>
-        <div class="mt-5 text-xs flex justify-center gap-2">
+        <div class="mt-5 text-xs flex flex-wrap justify-center gap-2">
           <span class="font-bold">{{ $t('uptime.legend') }}: </span>
           <span class="bg-green-500">&nbsp;</span> {{ $t('uptime.committed') }}
           <span class="bg-yellow-500">&nbsp;</span>
           {{ $t('uptime.precommitted') }}
           <span class="bg-red-500">&nbsp;</span> {{ $t('uptime.missed') }}
+          <span class="bg-gray-300">&nbsp;</span> Non observé
         </div>
       </div>
 
       <div :class="tab === '3' ? '' : 'hidden'" class="overflow-x-auto">
-        <table class="table table-compact w-full mt-5">
+        <table aria-label="Uptime des validateurs" class="table table-compact w-full mt-5">
           <thead class="capitalize bg-base-200">
             <tr>
-              <td>{{ $t('account.validator') }}</td>
-              <td class="text-right">{{ $t('module.uptime') }}</td>
-              <td>{{ $t('uptime.last_jailed_time') }}</td>
-              <td class="text-right">{{ $t('uptime.signed_precommits') }}</td>
-              <td class="text-right">{{ $t('uptime.start_height') }}</td>
-              <td>{{ $t('uptime.tombstoned') }}</td>
+              <th scope="col">{{ $t('account.validator') }}</th>
+              <th scope="col" class="text-right">{{ $t('module.uptime') }}</th>
+              <th scope="col">{{ $t('uptime.last_jailed_time') }}</th>
+              <th scope="col" class="text-right">{{ $t('uptime.signed_precommits') }}</th>
+              <th scope="col" class="text-right">{{ $t('uptime.start_height') }}</th>
+              <th scope="col">{{ $t('uptime.tombstoned') }}</th>
             </tr>
           </thead>
           <tr v-for="(v, i) in grid" class="hover">

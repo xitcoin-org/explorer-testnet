@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import fetch from 'cross-fetch';
+import { prevoteParticipation, consensusStep } from '@/libs/consensus';
 import { onMounted, ref, computed, onUnmounted } from 'vue';
 import { useBlockchain, useFormatter, useStakingStore, useBaseStore } from '@/stores';
 import { consensusPubkeyToHexAddress, publicValidatorMoniker } from '@/libs';
@@ -33,7 +34,7 @@ onMounted(async () => {
   clearTime();
   timer = setInterval(() => {
     update();
-  }, Math.round(baseStore.blocktime / 2));
+  }, Math.max(1000, Math.round(baseStore.blocktime / 2) || 3000));
 });
 onUnmounted(() => {
   clearTime();
@@ -90,10 +91,11 @@ async function onChange() {
   clearTime();
   try {
     await fetchPosition();
-    update();
+    loading = false;
+    await update();
     timer = setInterval(() => {
       update();
-    }, Math.round(baseStore.blocktime / 2));
+    }, Math.max(1000, Math.round(baseStore.blocktime / 2) || 3000));
   } finally {
     loading = false;
   }
@@ -121,38 +123,28 @@ async function fetchPosition() {
 }
 
 async function update() {
-  rate.value = '0%';
-  updatetime.value = new Date();
-  if (httpstatus.value === 200) {
-    fetch(rpc.value)
-      .then((data) => {
-        httpstatus.value = data.status;
-        httpStatusText.value = data.statusText;
-        return data.json();
-      })
-      .then((res) => {
-        roundState.value = res.result.round_state;
-        const raw = roundState?.value?.['height/round/step']?.split('/');
-        // eslint-disable-next-line prefer-destructuring
-        height.value = raw[0];
-        // eslint-disable-next-line prefer-destructuring
-        round.value = raw[1];
-        // eslint-disable-next-line prefer-destructuring
-        step.value = raw[2];
-
-        // find the highest onboard rate
-        roundState.value?.height_vote_set?.forEach((element: any) => {
-          const rates = Number(element.prevotes_bit_array.substring(element.prevotes_bit_array.length - 4));
-          if (rates > 0) {
-            rate.value = `${(rates * 100).toFixed()}%`;
-          }
-        });
-      })
-      .catch((err) => {
-        httpstatus.value = 500;
-        httpStatusText.value = err;
-      });
-  }
+  if (loading) return;
+  loading = true;
+  try {
+    const response = await fetch(rpc.value);
+    if (!response.ok) throw new Error(`RPC HTTP ${response.status}`);
+    const res = await response.json();
+    const state = res?.result?.round_state;
+    const raw = state?.['height/round/step']?.split('/');
+    if (!raw || raw.length !== 3) throw new Error('État de consensus non disponible');
+    roundState.value = state;
+    [height.value, round.value, step.value] = raw;
+    const current = state.height_vote_set?.find((item: any) => String(item.round) === round.value);
+    rate.value = prevoteParticipation(current?.prevotes_bit_array);
+    httpstatus.value = 200;
+    httpStatusText.value = '';
+    updatetime.value = new Date();
+  } catch (err) {
+    httpstatus.value = 503;
+    httpStatusText.value = err instanceof Error ? err.message : 'Non disponible';
+    rate.value = 'Non disponible';
+    roundState.value = {};
+  } finally { loading = false; }
 }
 </script>
 
@@ -168,7 +160,7 @@ async function update() {
             class="input input-bordered input-md w-full"
             v-model="rpc"
           /> -->
-          <select v-model="rpc" class="select select-bordered w-full flex-1">
+          <select aria-label="RPC du consensus" v-model="rpc" class="select select-bordered w-full flex-1">
             <option v-for="(item, index) in rpcList" :key="index">{{ item?.address }}/consensus_state</option>
           </select>
           <button class="btn btn-primary" @click="onChange">
@@ -182,9 +174,9 @@ async function update() {
     <div class="mt-4" v-if="roundState['height/round/step']">
       <div class="grid grid-cols-1 md:!grid-cols-4 auto-cols-auto gap-4 pb-4">
         <div class="bg-base-100 px-4 py-3 rounded shadow flex justify-between items-center">
-          <div class="text-sm mb-1 flex flex-col truncate">
+          <div class="text-sm mb-1 flex flex-col min-w-0">
             <h4 class="text-lg font-semibold text-main">{{ rate }}</h4>
-            <span class="text-md">{{ $t('consensus.onboard_rate') }}</span>
+            <span class="text-md">Puissance des prévotes reçus (round courant)</span>
           </div>
           <div class="avatar placeholder">
             <div class="bg-error/10 rounded-full w-12 h-12">
@@ -194,7 +186,7 @@ async function update() {
         </div>
         <!-- Height -->
         <div class="bg-base-100 px-4 py-3 rounded shadow flex justify-between items-center">
-          <div class="text-sm mb-1 flex flex-col truncate">
+          <div class="text-sm mb-1 flex flex-col min-w-0">
             <h4 class="text-lg font-semibold text-main">{{ height }}</h4>
             <span class="text-md">{{ $t('account.height') }}</span>
           </div>
@@ -206,7 +198,7 @@ async function update() {
         </div>
         <!-- Round -->
         <div class="bg-base-100 px-4 py-3 rounded shadow flex justify-between items-center">
-          <div class="text-sm mb-1 flex flex-col truncate">
+          <div class="text-sm mb-1 flex flex-col min-w-0">
             <h4 class="text-lg font-semibold text-main">{{ round }}</h4>
             <span class="text-md">{{ $t('consensus.round') }}</span>
           </div>
@@ -218,8 +210,8 @@ async function update() {
         </div>
         <!-- Step -->
         <div class="bg-base-100 px-4 py-3 rounded shadow flex justify-between items-center">
-          <div class="text-sm mb-1 flex flex-col truncate">
-            <h4 class="text-lg font-semibold text-main">{{ step }}</h4>
+          <div class="text-sm mb-1 flex flex-col min-w-0">
+            <h4 class="text-lg font-semibold text-main">{{ consensusStep(step) }}</h4>
             <span class="text-md">{{ $t('consensus.step') }}</span>
           </div>
           <div class="avatar placeholder">
@@ -233,7 +225,7 @@ async function update() {
     <!-- update -->
     <div class="bg-base-100 p-4 rounded shadow" v-if="roundState['height/round/step']">
       <div class="flex flex-1 flex-col truncate">
-        <h2 class="text-sm card-title text-error mb-6">{{ $t('consensus.updated_at') }} {{ newTime || '' }}</h2>
+        <h2 class="text-sm card-title mb-6">{{ $t('consensus.updated_at') }} {{ newTime || '' }}</h2>
         <div v-for="item in roundState.height_vote_set" :key="item.round">
           <div class="text-xs mb-1">
             {{ $t('consensus.round') }}: {{ item.round }}
@@ -253,19 +245,19 @@ async function update() {
                 <span>
                   <span
                     class="tooltip"
-                    :data-tip="pre"
+                    :data-tip="pre" :aria-label="`Prévote : ${pre}`" role="img"
                     :class="{
                       'bg-success': String(pre).toLowerCase() !== 'nil-vote',
-                      'bg-error': String(pre).toLowerCase() === 'nil-vote',
+                      'bg-base-content/30': String(pre).toLowerCase() === 'nil-vote',
                     }"
                     >&nbsp;</span
                   >
                   <span
                     class="tooltip ml-1"
-                    :data-tip="item.precommits[i]"
+                    :data-tip="item.precommits[i]" :aria-label="`Précommit : ${item.precommits[i]}`" role="img"
                     :class="{
                       'bg-success': String(item.precommits[i]).toLowerCase() !== 'nil-vote',
-                      'bg-error': String(item.precommits[i]).toLowerCase() === 'nil-vote',
+                      'bg-base-content/30': String(item.precommits[i]).toLowerCase() === 'nil-vote',
                     }"
                     >&nbsp;</span
                   >
@@ -286,10 +278,10 @@ async function update() {
       <div class="px-4 py-4">
         <ul style="list-style-type: disc" class="pl-8">
           <li>
-            {{ $t('consensus.tips_description_1') }}
+            Instantané du nœud RPC : hauteur en cours, round (à partir de 0) et étape interne CometBFT. À l’étape 1 (NewHeight), aucun vote n’est encore reçu : 0 % peut être normal et ne signifie pas une panne.
           </li>
           <li>
-            {{ $t('consensus.tips_description_2') }}
+            BA est le bitmap des votes reçus (x) ou absents (_). Le rapport reçu/total mesure la puissance de vote, pas des XTC. Les indicateurs affichent prévote puis précommit ; gris signifie non reçu à cet instant. Ce relevé ne mesure ni l’uptime ni la disponibilité globale des validateurs.
           </li>
         </ul>
       </div>

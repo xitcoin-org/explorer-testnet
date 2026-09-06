@@ -1,3 +1,4 @@
+import { externalPrice } from '@/libs/explorerPresentation';
 import { defineStore } from 'pinia';
 import { useBlockchain, useBankStore, useStakingStore, useDashboard } from '@/stores';
 import numeral from 'numeral';
@@ -106,6 +107,7 @@ export const useFormatter = defineStore('formatter', {
       return v !== 0 ? numeral(v).format('+0,0') : '';
     },
     tokenValue(token?: Coin) {
+      if (!token || externalPrice(this.priceInfo(token.denom)?.usd) === undefined) return 'Non disponible';
       if (token) {
         const value = this.tokenValueNumber(token);
         return numeral(value).format(value > 0 && value < 0.01 ? '0,0.[000000]' : '0,0.[00]');

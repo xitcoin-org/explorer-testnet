@@ -45,5 +45,6 @@ const series = computed(() => {
 </script>
 
 <template>
-  <ApexCharts type="bar" height="150" :options="options" :series="series" />
+  <p v-if="baseStore.recents.length && baseStore.recents.every(b => b.block.data.txs.length === 0)" class="bg-base-100 rounded p-4 mb-4">Aucune transaction dans les blocs observés.</p>
+  <ApexCharts v-else type="bar" height="150" :options="options" :series="series" />
 </template>

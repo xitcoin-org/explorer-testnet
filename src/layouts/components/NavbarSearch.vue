@@ -67,7 +67,7 @@ function confirm() {
 </script>
 <template>
   <div>
-    <button class="btn btn-ghost btn-circle btn-sm mx-1" @click="openSearchModal">
+    <button aria-label="Search explorer" class="btn btn-ghost btn-circle btn-sm mx-1" @click="openSearchModal">
       <Icon icon="mdi:magnify" class="text-2xl text-base-content/70" />
     </button>
 

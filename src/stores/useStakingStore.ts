@@ -57,6 +57,7 @@ export const useStakingStore = defineStore('stakingStore', {
       return await this.fetchParams();
     },
     async keybase(identity: string) {
+      if (this.blockchain.chainName === 'xitcoin-testnet') return { them: [] };
       return get(`https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=${identity}&fields=pictures`);
     },
     async fetchParams() {
