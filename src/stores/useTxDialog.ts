@@ -9,6 +9,7 @@ let CALLBACK: any = null;
 export const useTxDialog = defineStore('txDialogStore', {
   state: () => {
     return {
+      openSequence: 0,
       sender: '',
       type: 'send',
       endpoint: '',
@@ -54,7 +55,11 @@ export const useTxDialog = defineStore('txDialogStore', {
       } else {
         CALLBACK = undefined;
       }
-      await openTransactionDialog(type);
+      if (this.blockchain.chainName === 'xitcoin-testnet' && ['send', 'delegate'].includes(type)) {
+        this.openSequence++;
+      } else {
+        await openTransactionDialog(type);
+      }
     },
     view(tx: {
       detail: {

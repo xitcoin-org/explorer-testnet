@@ -51,3 +51,17 @@ jobs:
 
       - name: Audit locked dependencies
         run: yarn audit
+
+      - name: Install Chromium
+        run: yarn playwright install --with-deps chromium
+
+      - name: Test Xitcoin wallet dialogs without signing or broadcasting
+        run: |
+          yarn preview --host 0.0.0.0 --port 4176 > /tmp/explorer-preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid"' EXIT
+          for _attempt in $(seq 1 30); do
+            if curl -fsS http://localhost:4176/ > /dev/null; then break; fi
+            sleep 1
+          done
+          yarn test:browser

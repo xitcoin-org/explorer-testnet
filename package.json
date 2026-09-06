@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit",
-    "test": "node --experimental-strip-types --test tests/*.test.mjs"
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "test:browser": "node tests/wallet-dialog.browser.cjs"
   },
   "dependencies": {
     "@chain-registry/client": "^1.53.184",
@@ -33,6 +34,7 @@
     "axios": "1.19.0",
     "bech32": "^1.1.4",
     "buffer": "^6.0.3",
+    "cosmjs-types": "0.11.0",
     "cross-fetch": "^3.1.5",
     "daisyui": "^3.1.0",
     "dayjs": "^1.11.7",
@@ -62,9 +64,12 @@
     "@types/numeral": "^2.0.2",
     "@types/semver": "7.5.0",
     "@vitejs/plugin-vue": "6.0.8",
+    "@vue/compiler-sfc": "3.5.41",
     "@vue/tsconfig": "0.9.1",
+    "axe-core": "4.11.0",
     "husky": "^9.1.7",
     "npm-run-all": "^4.1.5",
+    "playwright": "1.58.2",
     "prettier": "^3.0.0",
     "pretty-quick": "^4.2.2",
     "sass": "^1.58.0",
@@ -76,8 +81,7 @@
     "vite": "6.4.3",
     "vite-plugin-pages": "0.33.3",
     "vue-json-viewer": "3",
-    "vue-tsc": "3.3.11",
-    "@vue/compiler-sfc": "3.5.41"
+    "vue-tsc": "3.3.11"
   },
   "resolutions": {
     "**/@cosmjs/encoding/@scure/base": "2.0.0"

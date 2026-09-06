@@ -4,6 +4,8 @@ import { useBaseStore, useBlockchain, useWalletStore, useStorageStore } from '@/
 import { Icon } from '@iconify/vue';
 import { ref, computed } from 'vue';
 
+import { XITCOIN } from '@/libs/xitcoinTransaction';
+
 const route = useRoute();
 const walletStore = useWalletStore();
 const chainStore = useBlockchain();
@@ -126,9 +128,9 @@ const params = computed(() => {
   </div>
   <Teleport to="body">
     <ping-connect-wallet
-      :chain-id="baseStore.currentChainId || 'cosmoshub-4'"
+      :chain-id="chainStore.chainName === 'xitcoin-testnet' ? XITCOIN.chainId : baseStore.currentChainId"
       :hd-path="chainStore.defaultHDPath"
-      :addr-prefix="chainStore.current?.bech32Prefix || 'cosmos'"
+      :addr-prefix="chainStore.current?.bech32Prefix || 'xtc'"
       @connect="walletStateChange"
       @keplr-config="walletStore.suggestChain()"
       :params="params"

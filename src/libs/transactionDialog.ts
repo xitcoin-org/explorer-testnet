@@ -1,5 +1,7 @@
 import { nextTick } from 'vue';
 
+const closeListeners = new WeakMap<HTMLInputElement, EventListener>();
+
 /** Adapt the legacy checkbox modal to native button and keyboard activation. */
 export async function openTransactionDialog(type: string) {
   // The custom element has a separate Vue app that renders after its host.
@@ -22,11 +24,15 @@ export async function openTransactionDialog(type: string) {
   const restoreFocus = () => {
     if (!toggle.checked) previousFocus?.focus();
   };
-  toggle.onchange = restoreFocus;
+  const previousListener = closeListeners.get(toggle);
+  if (previousListener) toggle.removeEventListener('change', previousListener);
+  toggle.addEventListener('change', restoreFocus);
+  closeListeners.set(toggle, restoreFocus);
   box.onkeydown = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       event.preventDefault();
       toggle.checked = false;
+      toggle.dispatchEvent(new Event('change', { bubbles: true }));
       restoreFocus();
     } else if (
       event.target === close &&
@@ -52,5 +58,6 @@ export async function openTransactionDialog(type: string) {
     }
   };
   toggle.checked = true;
+  toggle.dispatchEvent(new Event('change', { bubbles: true }));
   close.focus();
 }
