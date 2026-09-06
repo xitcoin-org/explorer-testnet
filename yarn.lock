@@ -1540,10 +1540,10 @@
   resolved "https://registry.yarnpkg.com/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.63.0.tgz#2cfd1741b6693f78debdde1a5d4faa05bb75a349"
   integrity sha512-hncn90N4sOky0L2LKE5oESKLbxCPeVo4eLA2LSMoDzM+879ml4WSr+Rr4DWknNIVVvS1Hirkc9hx02W6YxS8rQ==
 
-"@scure/base@^2.0.0":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@scure/base/-/base-2.3.0.tgz#fc7acb5b7084c53e4e2537d83fa72cddac7143fd"
-  integrity sha512-NsG6Y03tY6R5BUis4FdVtHVkur0U6FOzskgs9ZXNl78CUc9fkZ78HmENUle1nSOkCasDmbubmWD9qwB7mm4PZA==
+"@scure/base@2.0.0", "@scure/base@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@scure/base/-/base-2.0.0.tgz#ba6371fddf92c2727e88ad6ab485db6e624f9a98"
+  integrity sha512-3E1kpuZginKkek01ovG8krQ0Z44E3DHPjc5S2rjJw9lZn3KSQOs8S7wqikF/AH7iRanHypj85uGyxk0XAyC37w==
 
 "@scure/base@~1.2.5":
   version "1.2.6"

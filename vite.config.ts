@@ -10,6 +10,10 @@ import Pages from 'vite-plugin-pages';
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 
 export default defineConfig({
+  build: {
+    // Retain property-definition calls used by CosmJS polyfills.
+    rollupOptions: { treeshake: { annotations: false } },
+  },
   define: {
     'process.env': {},
   },
