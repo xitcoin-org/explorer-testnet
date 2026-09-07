@@ -62,6 +62,7 @@ const reports = [];
       await context.addInitScript(
         ({ sender, scenario }) => {
           window.__walletCalls = [];
+          if (scenario === 'light') localStorage.setItem('theme', 'light');
           const deny = async () => {
             window.__walletCalls.push({ method: 'SIGNATURE_FORBIDDEN' });
             throw new Error('Signing forbidden in test');
@@ -158,6 +159,16 @@ const reports = [];
             record.blocked.push({ url, method: request.method() });
             return route.abort();
           }
+          if (url.startsWith('https://rpc-testnet.xitcoin.org')) {
+            const response = await route.fetch();
+            return route.fulfill({
+              response,
+              headers: {
+                ...response.headers(),
+                'access-control-allow-origin': '*',
+              },
+            });
+          }
           if (url.startsWith('https://api-testnet.xitcoin.org')) {
             if (
               url.includes('/accounts/' + sender) &&
@@ -246,11 +257,15 @@ const reports = [];
         await send.waitFor();
         await page.waitForTimeout(1800);
         armed = true;
-        if (scenario === 'light')
-          await page.evaluate(() => {
-            document.documentElement.dataset.theme = 'light';
-            document.documentElement.classList.remove('dark');
-          });
+        if (scenario === 'light') {
+          await page.addScriptTag({ path: require.resolve('axe-core/axe.min.js') });
+          await page.waitForTimeout(600);
+          const violations = await page.evaluate(async () =>
+            (await axe.run(document, { runOnly: ['color-contrast'] })).violations
+              .map((v) => ({ id: v.id, targets: v.nodes.map((n) => n.target) }))
+          );
+          assert.deepEqual(violations, [], 'light dashboard contrast');
+        }
         for (const type of ['Send', 'Delegate']) {
           const trigger = page.getByRole('button', { name: type, exact: true });
           await trigger.focus();
@@ -403,6 +418,21 @@ const reports = [];
           record.dialogs.push({ type, passed: true });
         }
         record.walletCalls = await page.evaluate(() => window.__walletCalls);
+        if (scenario === 'light') {
+          for (const path of ['staking', 'block', 'consensus']) {
+            await page.goto(`${base}/xitcoin-testnet/${path}`, {
+              waitUntil: 'domcontentloaded',
+            });
+            await page.getByRole('button', { name: 'Change color theme' }).waitFor();
+            await page.waitForTimeout(1800);
+            await page.addScriptTag({ path: require.resolve('axe-core/axe.min.js') });
+            const violations = await page.evaluate(async () =>
+              (await axe.run(document, { runOnly: ['color-contrast'] })).violations
+                .map((v) => ({ id: v.id, targets: v.nodes.map((n) => n.target) }))
+            );
+            assert.deepEqual(violations, [], `light ${path} contrast`);
+          }
+        }
         assert.ok(
           record.walletCalls.every(
             (call) =>

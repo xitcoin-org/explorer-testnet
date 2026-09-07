@@ -63,6 +63,34 @@ html.dark .text-primary a { color: inherit; }
 html.dark .tab-active, html.dark .bg-primary, html.dark .btn-primary { color: #fff; }
 html.dark .badge-error, html.dark .btn[class*="!bg-info"], html.dark .btn[class*="!bg-yes"] { color: #172033 !important; }
 
+/* Muted text and colored controls also need readable foregrounds in light mode. */
+html[data-theme='light'] .table th,
+html[data-theme='light'] [class*='text-base-content/'],
+html[data-theme='light'] .tab:not(.tab-active) {
+  color: #4b5563;
+  opacity: 1;
+}
+html[data-theme='light'] .tab-active,
+html[data-theme='light'] .bg-primary,
+html[data-theme='light'] .btn-primary {
+  color: #fff;
+}
+html[data-theme='light'] .badge-error,
+html[data-theme='light'] .btn[class*='!bg-info'],
+html[data-theme='light'] .btn[class*='!bg-yes'] {
+  color: #172033 !important;
+}
+html[data-theme='light'] .text-success,
+html[data-theme='light'] .text-yes {
+  color: #067647;
+}
+html[data-theme='light'] .text-info {
+  color: #075985;
+}
+html[data-theme='light'] .text-error {
+  color: #b42318;
+}
+
 /* The legacy transaction widget must inherit the active theme contrast. */
 ping-tx-dialog > .text-gray-600 {
   color: hsl(var(--bc));
