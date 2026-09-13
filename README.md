@@ -106,3 +106,10 @@ Cosmos explorer, faucet, RPC and Blockscout instance.
 This repository remains licensed under the GNU General Public License v2.0.
 Copyright and attribution for the Ping Explorer project and its contributors
 are preserved in the source and license history.
+
+## EVM explorer update — 13 September 2026
+
+Backend **11.2.8**, the corrected frontend and public Stats passed targeted
+explorer acceptance. [Current Blockscout operations](docs/blockscout.md)
+supersede the earlier deployment instructions. This does not renew global
+testnet, faucet, bridge or wallet-integration acceptance.
