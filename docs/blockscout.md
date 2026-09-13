@@ -1,72 +1,31 @@
 # Xitcoin EVM explorer operations
 
-The canonical EVM explorer for the Xitcoin Public Testnet is Blockscout:
+The public EVM explorer is <https://evm-explorer-testnet.xitcoin.org> on EVM chain
+`101089` (`0x18ae1`), using XTC with 18 decimals.
 
-- Explorer: <https://evm-explorer-testnet.xitcoin.org>
-- EVM JSON-RPC: <https://evm-rpc-testnet.xitcoin.org>
-- EVM chain ID: `101089` (`0x18ae1`)
-- Native asset: XTC with 18 decimals
+On 13 September 2026, backend **11.2.8**, the corrected frontend and Stats passed
+targeted public acceptance. The active project is
+`xitcoin-upgrade-20260913t114659z`; backend/frontend/Stats use loopback
+15100/15101/15002 behind the existing HTTPS origin. Stats is exposed through
+`/stats-service/`. See the authoritative
+[deployment inventory and recovery procedure](https://github.com/xitcoin-org/explorer-evm-testnet/blob/main/docs/DEPLOYMENT.md)
+and [Stats timing](https://github.com/xitcoin-org/explorer-evm-testnet/blob/main/docs/STATS.md).
 
-## Canonical configuration
+The old `xitcoin-blockscout-canonical` project and the checked-in override are
+historical configuration references. Do not recreate the old backend or replay
+its deployment commands over the active installation. Preserve new public
+writes, all recovery dumps, archives and volumes. Recovery after exposure needs
+a plan based on the current DB and Redis, not a blind return to the old dump.
 
-Apply `blockscout/xitcoin-compose.override.yml` after the upstream Blockscout
-backend and frontend Compose files. It records the Xitcoin-specific invariants:
+The three accepted indexed heights matched RPC and advanced; the backend
+reported block/internal indexing ratios 1.00/1. A reported completion flag is
+not proof that every historical internal trace is supported by the RPC.
+No new trace capability is inferred from that flag.
 
-- `FIRST_BLOCK=1`: the Xitcoin EVM RPC exposes block 1 as its first canonical
-  height. Requesting block 0 currently resolves to block 1, so indexing from the
-  Blockscout default of 0 leaves the completion ratio permanently below 100%;
-- internal transaction indexing and UI are disabled because the RPC does not
-  expose `debug_traceTransaction` or `trace_transaction`;
-- the advertising provider is disabled.
+The home-page daily chart uses transaction counts, not XTC. The existing native
+0.01 XTC self-transfer has no ERC-20 transfers or contract logs; empty tabs for
+that transaction remain expected. No new transaction was used for this update.
 
-Do not hide the block-indexing alert to conceal an incomplete index. A healthy
-instance must report `finished_indexing_blocks: true` and an indexed block ratio
-of 1 before the alert is considered resolved.
-
-## Compose deployment
-
-On the platform host, combine the canonical override with the existing files:
-
-```bash
-app=/srv/kcalb/applications/xitcoin-blockscout-canonical-staging
-project=xitcoin-blockscout-canonical
-
-sudo docker compose -p "$project" \
-  -f "$app/docker-compose.yml" \
-  -f "$app/frontend-compose.yml" \
-  -f "$app/xitcoin-compose.override.yml" \
-  config --quiet
-```
-
-After backing up the active configuration, recreate only the Blockscout service
-whose configuration changed. Never remove the PostgreSQL or Redis volumes.
-Blockscout maintenance must not restart validator, sentry, Cosmos RPC or EVM RPC
-services.
-
-## Verification
-
-Run the read-only public check from the repository root:
-
-```bash
-./scripts/verify-blockscout-production.sh
-```
-
-The expected result includes:
-
-- EVM chain ID `0x18ae1`;
-- `finished_indexing_blocks=true`;
-- indexed block ratio equal to 1;
-- an advancing positive indexed height;
-- the known test transaction available with status `ok`.
-
-The reference transaction is a native 0.01 XTC self-transfer. It has no ERC-20
-token transfers or contract logs; empty token-transfer and log tabs are expected.
-
-## Security and rollback
-
-- Keep RPC credentials and private host addresses out of this repository.
-- Never commit wallet keys, mnemonics, passwords or database credentials.
-- Back up Compose configuration before applying an override.
-- Recreate Blockscout containers with `--no-deps` when changing one service.
-- Preserve the database and Redis volumes during every rollback.
-- No verification command in this repository signs or submits transactions.
+The [2 September acceptance record](testnet-acceptance.md) remains dated history.
+Explorer acceptance does not establish five-host agreement, cryptographic trust
+anchoring, public recovery guarantees or a bridge launch.
