@@ -8,7 +8,7 @@ This repository contains the official explorer configuration for the
 
 ## Requirements
 
-- Node.js 22
+- Node.js 24.19.0 (see `.nvmrc`)
 - Corepack
 - Yarn 1.22.22
 - Git
@@ -17,7 +17,7 @@ This repository contains the official explorer configuration for the
 
 ```bash
 corepack enable
-yarn install --frozen-lockfile --ignore-engines
+yarn install --frozen-lockfile --ignore-scripts --non-interactive
 yarn serve
 ```
 
@@ -28,7 +28,7 @@ The development server uses the public Xitcoin testnet endpoints configured in
 
 ```bash
 corepack enable
-yarn install --frozen-lockfile --ignore-engines
+yarn install --frozen-lockfile --ignore-scripts --non-interactive
 yarn build
 ```
 

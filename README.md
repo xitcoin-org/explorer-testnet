@@ -39,13 +39,13 @@ limits.
 
 Requirements:
 
-- Node.js 22;
+- Node.js 24.19.0 (see `.nvmrc`);
 - Corepack;
 - Yarn 1.22.22.
 
 ```bash
 corepack enable
-yarn install --frozen-lockfile --ignore-engines
+yarn install --frozen-lockfile --ignore-scripts --non-interactive
 yarn build
 ```
 
