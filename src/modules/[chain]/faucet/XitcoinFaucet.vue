@@ -3,24 +3,13 @@ import { computed, onMounted, ref } from 'vue';
 import { fromBech32, fromHex, toBech32 } from '@cosmjs/encoding';
 import { useBlockchain } from '@/stores';
 import { useI18n } from 'vue-i18n';
+import { faucetResponse } from '@/libs/faucetResponse';
 
 interface HealthResponse {
   status: string;
   chain_id: string;
   claim_amount_xtc: string;
   funded: boolean;
-}
-
-interface ClaimResponse {
-  ok?: boolean;
-  amount_xtc?: string;
-  txhash?: string;
-  tx_hash?: string;
-  hash?: string;
-  tx_response?: {
-    txhash?: string;
-  };
-  error?: string;
 }
 
 const chainStore = useBlockchain();
@@ -30,6 +19,8 @@ const health = ref<HealthResponse>();
 const message = ref(t('xitcoin_faucet.checking'));
 const pending = ref(false);
 const txHash = ref('');
+const reconciliationRequired = ref(false);
+const requestId = ref('');
 
 const endpoint = computed(() => chainStore.current?.faucet?.endpoint?.replace(/\/$/, '') || '');
 const normalizedAddress = computed(() => {
@@ -50,7 +41,7 @@ const validAddress = computed(() => {
 });
 const ready = computed(() => Boolean(health.value?.funded && endpoint.value));
 const canClaim = computed(
-  () => Boolean(ready.value && validAddress.value && address.value && !pending.value)
+  () => Boolean(ready.value && validAddress.value && address.value && !pending.value && !reconciliationRequired.value)
 );
 const transactionPath = computed(() =>
   txHash.value ? `/${chainStore.chainName}/tx/${txHash.value}` : ''
@@ -80,22 +71,17 @@ async function claim() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ address: normalizedAddress.value }),
     });
-    const result: ClaimResponse = await response.json();
-    if (!response.ok || !result.ok) throw new Error(result.error || 'claim_failed');
-
-    const returnedHash =
-      result.txhash || result.tx_hash || result.hash || result.tx_response?.txhash || '';
-    if (/^[A-Fa-f0-9]{64}$/.test(returnedHash)) {
-      txHash.value = returnedHash.toUpperCase();
-    }
-
-    message.value = t('xitcoin_faucet.sent', {
-      amount: result.amount_xtc || health.value?.claim_amount_xtc || '10',
-    });
-  } catch (error) {
-    message.value = t('xitcoin_faucet.refused', {
-      error: error instanceof Error ? error.message : 'unknown_error',
-    });
+    const outcome = faucetResponse(response.status, await response.json());
+    reconciliationRequired.value = outcome.reconciliationRequired;
+    txHash.value = outcome.txHash;
+    requestId.value = outcome.requestId;
+    message.value = outcome.reconciliationRequired
+      ? t('xitcoin_faucet.awaiting_reconciliation')
+      : t('xitcoin_faucet.refused', { error: outcome.error });
+  } catch {
+    // A failed fetch or malformed response cannot prove non-submission.
+    reconciliationRequired.value = true;
+    message.value = t('xitcoin_faucet.awaiting_reconciliation');
   } finally {
     pending.value = false;
   }
@@ -152,8 +138,11 @@ onMounted(() => {
       <div class="mt-4 rounded bg-base-200 p-3 text-sm text-base-content" aria-live="polite">
         {{ message }}
       </div>
-      <div v-if="txHash" class="mt-3 rounded border border-success/40 bg-success/10 p-3">
-        <p class="mb-1 text-sm font-semibold text-success">Transaction confirmed</p>
+      <p v-if="requestId" class="mt-3 break-all text-sm">
+        {{ $t('xitcoin_faucet.request_reference', { id: requestId }) }}
+      </p>
+      <div v-if="txHash" class="mt-3 rounded border border-base-content/20 p-3">
+        <p class="mb-1 text-sm font-semibold">{{ $t('xitcoin_faucet.unverified_hash') }}</p>
         <RouterLink :to="transactionPath" class="break-all text-sm text-primary underline">
           {{ txHash }}
         </RouterLink>
